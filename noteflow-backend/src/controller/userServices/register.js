@@ -11,28 +11,27 @@ import { createUserBucket } from '../../model/mongodb/model/index.js';
 const { EMAIL_USER, EMAIL_HOST } = process.env;
 
 const register = async (ctx) => {
+  const { user } = ctx.request.body; // if none, assign user with {}
+
+  ctx.assert(user, 400, "Bad request. You didn't provide user column.");
+
+  const filled = user.email && user.name && user.password;
+  ctx.assert(
+    filled,
+    400,
+    "Bad request. You didn't provide sufficient information.",
+  );
+
+  // create User
+  const result = await db('users').first().where({ email: user.email });
+  ctx.assert(result, 401, 'Forbidden, you already have an email.');
+
+  let userId = null;
+  const randomString = Math.random().toString(15);
+  const token = crypto.SHA256(randomString).toString(crypto.enc.Hex);
+  const password = await argon2.hash(user.password);
+
   try {
-    const { user } = ctx.request.body; // if none, assign user with {}
-
-    if (!user) {
-      ctx.throw(400, "Bad request. You didn't provide user column.");
-    }
-    if (!user.email || !user.name || !user.password) {
-      ctx.throw(400, "Bad request. You didn't provide sufficient information.");
-    }
-
-    // create User
-    const result = await db('users').first().where({ email: user.email });
-    if (result) {
-      ctx.throw(401, 'Forbidden, you already have  an email.');
-    }
-
-    let userId = null;
-    const randomString = Math.random().toString(15);
-    const token = crypto.SHA256(randomString).toString(crypto.enc.Hex);
-    const verifyMessage = 'An Email sent to your account please verify';
-    const password = await argon2.hash(user.password);
-
     await db('users')
       .insert({
         uuid: uuidv4(),
@@ -46,7 +45,7 @@ const register = async (ctx) => {
         userId = rows[0].id;
       });
 
-    const message = `${EMAIL_HOST}/api/user/verify/${userId}/${token}`;
+    const message = `${EMAIL_HOST}/api/user/verify?id=${userId}&token=${token}`;
     // await sendEmail(user.email, 'Verify Email', verifyMessage);
 
     sendEmail({
@@ -66,13 +65,11 @@ const register = async (ctx) => {
     await ctx.session.save();
 
     await createUserBucket(user.email);
-
-    ctx.status = 200;
-    ctx.body = JSON.stringify({ user: _.omit(user, ['password']) });
   } catch (err) {
-    ctx.status = err.status || 500;
-    ctx.body = JSON.stringify({ errors: err.message });
+    ctx.throw(500, JSON.stringify(err));
   }
+
+  ctx.status = 200;
 };
 
 export default register;

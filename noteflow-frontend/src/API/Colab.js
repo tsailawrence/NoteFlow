@@ -1,10 +1,12 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { BASE_URL } from './api';
+import tinycolor from 'tinycolor2';
+import crc32 from 'crc-32';
 
 class Colab {
   constructor(nodeId, email, callback) {
     const socket = new ReconnectingWebSocket(
-      `wss://${BASE_URL}/ws/registerNodeColab?id=${nodeId}`
+      `wss://${BASE_URL}/ws/registerNodeColab?id=${nodeId}`,
     );
 
     socket.addEventListener('message', (msg) => {
@@ -23,14 +25,14 @@ class Colab {
         JSON.stringify({
           nodeId: nodeId,
           email: email,
-        })
+        }),
       );
       this.timerId = setInterval(() => {
         socket.send(
           JSON.stringify({
             nodeId: nodeId,
             email: email,
-          })
+          }),
         );
       }, 2000);
     });
@@ -48,4 +50,17 @@ class Colab {
   }
 }
 
-export { Colab };
+function allocateColor(id, hourly = false) {
+  let crcId = Math.abs(crc32.str(id));
+
+  if (hourly) {
+    crcId += Date.now() / 3600000;
+  }
+
+  const r = crcId % 256;
+  const g = (crcId >> 8) % 256;
+  const b = (crcId >> 16) % 256;
+  return tinycolor({ r, g, b });
+}
+
+export { Colab, allocateColor };

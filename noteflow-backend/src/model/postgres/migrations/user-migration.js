@@ -1,4 +1,4 @@
-export function up(knex, Promise) {
+export function up(knex) {
   return knex.schema.createTable('users', (table) => {
     table.increments();
     table.string('uuid');
@@ -14,6 +14,6 @@ export function up(knex, Promise) {
   });
 }
 
-export function down(knex, Promise) {
-    return knex.schema.dropTable('users');
+export function down(knex) {
+  return knex.schema.dropTable('users');
 }

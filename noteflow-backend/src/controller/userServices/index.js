@@ -5,6 +5,13 @@ import register from './register.js';
 import updateUserInfo from './updateUserInfo.js';
 import whoAmI from './whoAmI.js';
 import verifyToken from './verifyToken.js';
+import {
+  forgotPassword,
+  forgotPasswordAuth,
+  forgotPasswordRenew,
+} from './forgotPassword.js';
+import getUserPhoto from './getUserPhoto.js';
+import setUserPhoto from './setUserPhoto.js';
 
 const service = {
   googleLogin,
@@ -14,6 +21,11 @@ const service = {
   register,
   updateUserInfo,
   whoAmI,
+  forgotPassword,
+  forgotPasswordAuth,
+  forgotPasswordRenew,
+  getUserPhoto,
+  setUserPhoto,
 };
 
 export default service;

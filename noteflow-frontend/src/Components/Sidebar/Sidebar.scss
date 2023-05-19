@@ -11,6 +11,7 @@
   justify-content: flex-start;
   position: relative;
   border-right: 1px solid grey;
+  z-index: 1000;
 
   .logo {
     height: 13vh;

@@ -1,16 +1,16 @@
-import React, { useEffect, useState, useRef } from "react";
-import { experimentalStyled as styled } from "@mui/material/styles";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import { useNavigate } from "react-router-dom";
-import { grey } from "@mui/material/colors";
-import instance from "../../API/api";
-import { useApp } from "../../hooks/useApp";
-import { useTranslation } from "react-i18next";
-import { usePageTab } from "../../hooks/usePageTab";
-import LoadingScreen from "../LoadingScreen/LoadingScreen";
-import BackToTopButton from "../../Components/BacktoTopButton/BackToTopButton.jsx";
-import "./FlowGrid.scss";
+import React, { useEffect, useState, useRef } from 'react';
+import { experimentalStyled as styled } from '@mui/material/styles';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import { useNavigate } from 'react-router-dom';
+import { grey } from '@mui/material/colors';
+import instance from '../../API/api';
+import { useApp } from '../../hooks/useApp';
+import { useTranslation } from 'react-i18next';
+import { usePageTab } from '../../hooks/usePageTab';
+import LoadingScreen from '../LoadingScreen/LoadingScreen';
+import BackToTopButton from '../BackToTopButton/BackToTopButton';
+import './FlowGrid.scss';
 
 export default function FlowGrid({ containerRef }) {
   const { t, i18n } = useTranslation();
@@ -23,14 +23,14 @@ export default function FlowGrid({ containerRef }) {
   const loadingCheckPointRef = useRef(null);
   const FlowButton = styled(Button)(({ theme }) => ({
     color: theme.palette.getContrastText(grey[100]),
-    backgroundColor: "white",
-    border: "1px black solid",
-    "&:hover": {
+    backgroundColor: 'white',
+    border: '1px black solid',
+    '&:hover': {
       backgroundColor: grey[100],
-      border: "1px grey solid",
+      border: '1px grey solid',
     },
-    width: "100%",
-    aspectRatio: "3/2",
+    width: '100%',
+    aspectRatio: '3/2',
   }));
   const options = {
     root: null,
@@ -39,7 +39,7 @@ export default function FlowGrid({ containerRef }) {
   const fetchFlows = async () => {
     const nextPage = page + 1;
     await instance
-      .get("/flows", { params: { page } })
+      .get('/flows', { params: { page } })
       .then((res) => {
         if (res.status === 200) {
           if (res.data.length == 0) {
@@ -82,9 +82,9 @@ export default function FlowGrid({ containerRef }) {
   const toFlow = (flow) => {
     if (!tabList.find((f) => f.objectId == flow.id)) {
       addTab({
-        type: "flow",
+        type: 'flow',
         objectId: flow.id,
-        name: flow.name ? flow.name : "UnTitled",
+        name: flow.name ? flow.name : 'UnTitled',
       }); // name 應該在 flows/create 拿
     }
     console.log(flow);
@@ -96,17 +96,17 @@ export default function FlowGrid({ containerRef }) {
   ) : (
     <>
       <div
-        className={`${isMobile ? "flow-container-mobile" : "flow-container"}`}
+        className={`${isMobile ? 'flow-container-mobile' : 'flow-container'}`}
       >
         {flows.map((flow, key) => (
           <div className="grid-item" key={key}>
             <FlowButton onClick={() => toFlow(flow)}>
-              {flow.thumbnail !== "" ? (
-                <img style={{ objectFit: "cover" }} loading="lazy">
+              {flow.thumbnail !== '' ? (
+                <img style={{ objectFit: 'cover' }} loading="lazy">
                   flow.thumbnail
                 </img>
               ) : (
-                `${t("Last Edit Time")}: ${flow.updateAt} ${t("hours")}`
+                `${t('Last Edit Time')}: ${flow.updateAt} ${t('hours')}`
               )}
             </FlowButton>
             <Typography>{flow.name}</Typography>
@@ -120,7 +120,7 @@ export default function FlowGrid({ containerRef }) {
         <div
           className="loading-checkpoint"
           ref={loadingCheckPointRef}
-          style={{ visibility: "hidden" }}
+          style={{ visibility: 'hidden' }}
         >
           CHECKPOINT
         </div>

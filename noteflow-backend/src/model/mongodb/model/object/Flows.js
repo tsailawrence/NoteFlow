@@ -17,52 +17,46 @@ class Flows {
     };
 
     const mongoClient = getMongoClient();
-    await mongoClient.connect();
     const database = mongoClient.db('noteflow');
     const collection = database.collection('flows');
     if (await collection.findOne({ user: result.user })) {
       return; // We have created for this user.
     }
     await collection.insertOne(result);
-
-    await mongoClient.close();
   }
 
   async addFlow() {
     const mongoClient = getMongoClient();
     const flowId = await Flow.generateFlowId();
-    await mongoClient.connect();
     const database = mongoClient.db('noteflow');
     const collection = database.collection('flows');
 
     const flow = new Flow(flowId, '', this.user);
     await collection.insertOne({ ...flow });
-
-    await mongoClient.close();
   }
 
   static async fetchFlowsByFlowList(flowList, page) {
-    const request_mapper = {};
+    const requestMapper = {};
     flowList.forEach((element) => {
-      if (!(element.owner in request_mapper)) {
-        request_mapper[element.owner] = [];
+      if (!(element.owner in requestMapper)) {
+        requestMapper[element.owner] = [];
       }
-      request_mapper[element.owner].push(element.flowId);
+      requestMapper[element.owner].push(element.flowId);
     });
 
     const mongoClient = getMongoClient();
-    await mongoClient.connect();
+
     const database = mongoClient.db('noteflow');
     const collection = database.collection('flows');
 
     let result = [];
-    for (let key of Object.keys(request_mapper)) {
+    for (const key of Object.keys(requestMapper)) {
       const resolved = await collection
         .aggregate([
           { $match: { user: key } },
           { $limit: 1 },
           { $unwind: '$flows' },
-          { $match: { 'flows.id': { $in: request_mapper[key] } } },
+          { $match: { 'flows.id': { $in: requestMapper[key] } } },
           { $skip: 10 * page },
           { $limit: 10 },
           // 篩選
@@ -80,9 +74,82 @@ class Flows {
       result = result.concat(resolved);
     }
 
-    await mongoClient.close();
-
     return result;
+  }
+
+  static async fetchColaborators(owner, flowId) {
+    const mongoClient = getMongoClient();
+
+    const database = mongoClient.db('noteflow');
+    const collection = database.collection('flows');
+
+    const resolved = await collection
+      .aggregate([
+        { $match: { user: owner } },
+        { $limit: 1 },
+        { $unwind: '$flows' },
+        { $match: { 'flows.id': { $eq: flowId } } },
+        { $replaceRoot: { newRoot: '$flows' } },
+      ])
+      .toArray();
+
+    return resolved[0].colaborators;
+  }
+
+  static async setTitle(flowId, newTitle) {
+    const mongoClient = getMongoClient();
+
+    const database = mongoClient.db('noteflow');
+    const collection = database.collection('flows');
+
+    const owner = flowId.split('-')[0];
+
+    const result = await collection.findOneAndUpdate(
+      {
+        user: owner,
+        'flows.id': flowId,
+      },
+      {
+        $set: { 'flows.$.name': newTitle },
+      },
+    );
+
+    return result.lastErrorObject.updatedExisting;
+  }
+
+  static async getTitle(flowId) {
+    const mongoClient = getMongoClient();
+
+    const database = mongoClient.db('noteflow');
+    const collection = database.collection('flows');
+
+    const owner = flowId.split('-')[0];
+    const resolved = await collection
+      .aggregate([
+        { $match: { user: owner } },
+        { $limit: 1 },
+        { $unwind: '$flows' },
+        { $match: { 'flows.id': flowId } },
+      ])
+      .toArray();
+
+    return resolved[0].flows ? resolved[0].flows.name : null;
+  }
+
+  static async deleteFlow(flowId) {
+    const mongoClient = getMongoClient();
+
+    const database = mongoClient.db('noteflow');
+    const collection = database.collection('flows');
+
+    const owner = flowId.split('-')[0];
+
+    const result = await collection.findOneAndDelete({
+      user: owner,
+      'flows.id': flowId,
+    });
+
+    return result.lastErrorObject.updatedExisting;
   }
 }
 

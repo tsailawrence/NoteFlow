@@ -13,37 +13,36 @@ class Library {
       user: email,
       nodes: [],
     };
+
     const mongoClient = getMongoClient();
-    await mongoClient.connect();
+
     const database = mongoClient.db('noteflow');
     const collection = database.collection('library');
+
     if (await collection.findOne({ user: result.user })) {
       return; // We have created for this user.
     }
     await collection.insertOne(result);
-
-    await mongoClient.close();
   }
 
   async fetchNodes(query = { user: this.user }, options = {}) {
     const { user } = query;
-    // const mongoClient = getMongoClient();
+    const mongoClient = getMongoClient();
     // 不需要 try：有問題 controller 層會 catch
-    // await mongoClient.connect();
-    // const database = mongoClient.db('noteflow');
-    // const collection = database.collection('library');
 
-    // // 先拿到 { userId: ..., nodes: ...}
-    // const result = await collection.findOne(query, options);
-    // await mongoClient.close();
+    const database = mongoClient.db('noteflow');
+    const collection = database.collection('nodeRepository');
 
-    const nodeRepo = new NodeRepo(user);
-    await nodeRepo.fetchNodes();
+    // 先拿到 { userId: ..., nodes: ...}
+    const result = await collection.findOne(query, options);
+
+    // const nodeRepo = new NodeRepo(user);
+    // await nodeRepo.fetchNodes();
+
     // this.nodes = new Array(result.nodes.length);
-    // result.nodes.forEach((element) => {
-    //   this.nodes.push(nodeRepo.nodes[element.ref]);
-    // });
-    this.nodes = nodeRepo.nodes;
+    result.nodes.forEach((element) => {
+      this.nodes.push(element);
+    });
   }
 }
 

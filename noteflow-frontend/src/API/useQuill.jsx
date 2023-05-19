@@ -4,28 +4,40 @@ import React, {
   useEffect,
   useState,
   useRef,
-} from "react";
+} from 'react';
 
-import sharedb from "sharedb/lib/client";
-import richText from "rich-text";
-import { useApp } from "../hooks/useApp";
-import { BASE_URL } from "./api";
-import quillEvent from "./QuillEvent";
+import sharedb from 'sharedb/lib/client';
+import richText from 'rich-text';
+import { useApp } from '../hooks/useApp';
+import { BASE_URL } from './api';
+import quillEvent from './QuillEvent';
 
 sharedb.types.register(richText.type);
 
 const QuillContext = createContext({
   OpenEditor: () => {},
-  setIdentity: () => {},
+  setOnline: () => {},
+  setTitle: () => {},
+  setNewTitle: () => {},
+  sendNewTitle: () => {},
+  QuillRef: {},
+  title: '',
+  newTitle: '',
 });
 
-const collection = "editor";
+const collection = 'editor';
 
-const QuillProvider = ({ ...props }) => {
+const colors = {};
+
+const QuillProvider = (props) => {
   const [websocket, setWebsocket] = useState(null);
   const [quill, setQuill] = useState(null);
+  const [editor, setEditor] = useState(null);
+  const [title, setTitle] = useState('');
+  const [newTitle, setNewTitle] = useState(title);
+  const [online, setOnline] = useState([]);
+
   const QuillRef = useRef();
-  const [identity, setIdentity] = useState(null);
 
   const { user } = useApp();
 
@@ -35,28 +47,75 @@ const QuillProvider = ({ ...props }) => {
     setWebsocket({ socket: socket, sharedb: connection, editorId: editorId });
     QuillRef.current !== null
       ? setQuill(QuillRef.current.getEditor())
-      : console.error("NULL QUILL REFERENCE");
+      : console.error('NULL QUILL REFERENCE');
+  };
+
+  useEffect(() => {
+    // 檢查 ws 連線，自動刪除無效連線的 cursor
+    if (quill && editor) {
+      const cursors = quill.getModule('cursors');
+      const killed = Object.keys(colors).filter(
+        (email) => !online.includes(email),
+      );
+      killed.forEach((email) => {
+        delete colors[email];
+        cursors.removeCursor(email);
+      });
+    }
+  }, [online]);
+
+  const sendNewTitle = (newTitle) => {
+    if (quillEvent.localPresence) {
+      const range = {
+        type: 'change-title',
+        title: newTitle,
+        name: user.email,
+      };
+      quillEvent.localPresence.submit(range, (error) => {
+        if (error) throw error;
+      });
+    }
   };
 
   useEffect(() => {
     if (!quill || !websocket) return;
     const editor = websocket.sharedb.get(collection, websocket.editorId);
+
     editor.subscribe((error) => {
       if (error) throw error;
+
+      setEditor(editor);
       quill.setContents(editor.data);
       const presence = editor.connection.getDocPresence(
         collection,
-        websocket.editorId
+        websocket.editorId,
       );
 
       presence.subscribe((error) => {
         if (error) throw error;
-        quillEvent.offon(quill, editor, presence, user);
+        quillEvent.offon(quill, editor, presence, user, {
+          setTitle,
+          setNewTitle,
+        });
       });
     });
-  }, [quill, websocket, identity]);
+  }, [quill, websocket]);
 
-  return <QuillContext.Provider value={{ OpenEditor, QuillRef }} {...props} />;
+  return (
+    <QuillContext.Provider
+      value={{
+        OpenEditor,
+        QuillRef,
+        newTitle,
+        setNewTitle,
+        setOnline,
+        title,
+        setTitle,
+        sendNewTitle,
+      }}
+      {...props}
+    />
+  );
 };
 
 const useQuill = () => useContext(QuillContext);

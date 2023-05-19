@@ -9,6 +9,94 @@
     align-items: center;
     position: relative;
 
+    .toolBarButton {
+      border-radius: 15px;
+      border: none;
+    }
+
+    .title-input {
+      width: 40%;
+      margin-left: 10px;
+      margin-bottom: 0;
+      font-size: 30px;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: #1e1e1e;
+      border-bottom: black solid 1px;
+
+      &:focus {
+        outline: none;
+        border-bottom: none;
+      }
+
+      &:focus + .focus-border {
+        width: 35vw;
+        transition: 0.4s;
+      }
+    }
+    .focus-border {
+      position: absolute;
+      bottom: 15px;
+      left: 50px;
+      width: 0px;
+      height: 2px;
+      background-color: #7b7b7b;
+      transition: 0.4s;
+    }
+
+    .users {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      position: absolute;
+      right: 3vw;
+      bottom: 2vh;
+      width: fit-content;
+      .user {
+        cursor: pointer;
+        border-radius: 50% 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        overflow: hidden;
+        img {
+          object-fit: cover;
+          width: 100%;
+        }
+
+        &:hover {
+          border: black solid 2px;
+          transition: 0.2s ease-out;
+          transform: scale(130%);
+        }
+      }
+    }
+  }
+  .text-editor {
+    height: calc(100vh - 80px);
+    position: relative;
+
+    .editor-input {
+      height: calc(100% - 80px);
+      position: relative;
+    }
+  }
+}
+
+.editor-mobile {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  .header {
+    height: 80px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    position: relative;
+
     .title-input {
       margin-left: 10px;
       margin-bottom: 0;
@@ -71,7 +159,7 @@
     }
   }
   .text-editor {
-    height: calc(100vh - 80px);
+    height: 70vh;
 
     .editor-input {
       height: calc(100% - 80px);

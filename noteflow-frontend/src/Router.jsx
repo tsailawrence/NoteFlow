@@ -12,6 +12,9 @@ import { QuillProvider } from "./API/useQuill";
 const Router = () => {
   return (
     <BrowserRouter>
+      {/* <Routes>
+        <Route element={<ResetPage />} path="/reset-password" />
+      </Routes> */}
       <UserProvider>
         <MediaProvider>
           <PageTabProvider>

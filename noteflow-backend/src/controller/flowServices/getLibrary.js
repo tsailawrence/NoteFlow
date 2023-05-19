@@ -1,16 +1,12 @@
 import Library from '../../model/mongodb/model/object/Library.js';
 
 const getLibrary = async (ctx) => {
-  if (!ctx.session.email) {
-    ctx.throw(401, "Unauthorized. You haven't log in yet.");
-  }
-
   const library = new Library(ctx.session.email);
   try {
     await library.fetchNodes();
   } catch (err) {
     // 在 Model 階段出現任何錯誤
-    ctx.status = 404;
+    ctx.status = 500;
     ctx.body = JSON.stringify(err);
     return;
   }

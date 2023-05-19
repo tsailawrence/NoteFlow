@@ -6,12 +6,12 @@ import knexfile from '../model/postgres/knexfile.js';
 let db;
 
 if (
-    process.env.NODE_ENV === 'local' ||
-    process.env.NODE_ENV === 'development'
+  process.env.NODE_ENV === 'local' ||
+  process.env.NODE_ENV === 'development'
 ) {
-    db = knex(knexfile.development);
+  db = knex(knexfile.development);
 } else {
-    db = knex(knexfile.production);
+  db = knex(knexfile.production);
 }
 
 export default db;

@@ -12,16 +12,19 @@ import cors from '@koa/cors';
 import WebSocketJSONStream from '@teamwork/websocket-json-stream';
 import path from 'path';
 import fs from 'fs';
-import koaStatic from 'koa-static';
 import send from 'koa-send';
 
 import sharedb from './model/mongodb/sharedb.js';
-import redisClient from './model/redis/redisClient.js';
+import redisClient, { newRedisClient } from './model/redis/redisClient.js';
 import routes from './routes/index.js';
-import redisSession, { getSession } from './model/redis/redisSession.js';
-import { Flow, Node } from './model/mongodb/model/index.js';
+import redisSession from './model/redis/redisSession.js';
+import WsRouter from './routes/ws-router.js';
 
 const app = new Koa();
+
+if (!fs.existsSync(path.join(process.cwd(), 'images'))) {
+  fs.mkdirSync(path.join(process.cwd(), 'images'));
+}
 
 const { default: sslify } = koaSslify;
 app.use(sslify());
@@ -30,11 +33,11 @@ app.use(logger());
 app.use(
   cors({
     origin: '*',
-    exposeHeaders: ['Authorization'],
     credentials: true,
     allowMethods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Authorization', 'Content-Type'],
     exposeHeaders: [
+      'Authorization',
       'set-cookie',
       'access-control-allow-origin',
       'access-control-allow-credentials',
@@ -67,160 +70,73 @@ app.use(async (ctx, next) => {
 });
 
 app.use(routes.routes());
-// app.use(koaServe({ rootPath: '/', rootDir: 'dist' }));
-app.use(koaStatic(path.join(process.cwd(), 'dist')));
+// app.use(koaServe({ rootPath: '/', rootDir: 'images' }));
+// app.use(koaStatic(path.join(process.cwd(), 'images')));
 app.use(async (ctx) => {
-  await send(ctx, 'index.html', { root: path.join(process.cwd(), 'dist') });
+  const url = ctx.request.url.split('/');
+  const image = url[url.length - 1];
+  await send(ctx, image, { root: path.join(process.cwd(), 'images') });
 });
 
-wsServer.on('close', async (ws, req) => {
-  console.log('close:', req.url);
-  await ws.close(1000);
-});
-wsServer.on('connection', async (ws, req) => {
-  // 某一個特定的人進來了這個地方，ws 裡面應該會存放有這個用戶的 sid & cookie
-  const requests = req.url.split('?');
-  const url_list = requests[0].split('/');
-  const url = '/' + url_list[url_list.length - 1];
-  const query = requests[1];
-  if (url === '/registerNodeColab') {
-    // 展示卡比獸們
-    // getSession(req.headers.cookie)
-    //     .then((sess) => {
-    //         try {
-    //             const email = sess.email;
-    //             const params = new URLSearchParams(query);
-
-    //             console.log(email);
-
-    //             Node.CanUserEdit(
-    //                 params.get('id'),
-    //                 params.get('id').split('-')[0],
-    //                 email
-    //             )
-    //                 .then((can) => {
-    //                     if (!can) {
-    //                         // Unauthorized. 你沒有權限進入這個 component
-    //                         ws.close(1000);
-    //                     }
-    //                 })
-    //                 .catch((e) => {
-    //                     // Component not exists. 嘗試讀取不存在的 List
-    //                     // ws.send(1001);
-    //                     ws.close(1001);
-    //                 });
-    //         } catch (e) {
-    //             // Internal Server Error
-    //             ws.close(4999);
-    //         }
-    //     })
-    //     .catch((e) => {
-    //         // You have no session. 我不認識你
-    //         ws.close(1002, 'Unauthorized.');
-    //     });
-
+const router = new WsRouter()
+  .no_session('/registerNodeColab', (ws) => {
     ws.on('message', async (message) => {
       try {
         const query = JSON.parse(message.toString('utf-8'));
         await redisClient.set(`${query.nodeId}-${query.email}`, 1, 'EX', 3);
         const keys = await redisClient.keys(`${query.nodeId}-*`);
-        if (ws.readyState !== ws.OPEN) return;
         ws.send(JSON.stringify(keys));
       } catch (e) {
-        ws.close(1000);
+        ws.close(1001);
       }
     });
-  } else if (url === '/flow') {
-    // flow 裡面的協作
-    let agent;
-    getSession(req.headers.cookie)
-      .then((sess) => {
-        try {
-          const email = sess.email;
-          const params = new URLSearchParams(query);
-          Flow.CanUserEdit(
-            params.get('id'),
-            params.get('id').split('-')[0],
-            email,
-          )
-            .then((can) => {
-              if (can) {
-                try {
-                  const stream = new WebSocketJSONStream(ws);
-                  agent = sharedb.listen(stream);
-                  ws.on('close', () => {
-                    agent.close();
-                  });
-                } catch (e) {
-                  ws.close(1000);
-                }
-              } else {
-                // Unauthorized. 你沒有權限進入這個 component
-                ws.close(1000);
-              }
-            })
-            .catch((e) => {
-              // Component not exists. 嘗試讀取不存在的 List
-              ws.close(1001);
-            });
-        } catch (e) {
-          // Internal Server Error
-          ws.close(4999);
-        }
-      })
-      .catch((e) => {
-        // You have no session. 我不認識你
-        ws.close(1002, 'Unauthorized.');
+  })
+  .session('/flow/mouse-sub', (ws) => {
+    // 上面的 ws 會一直都是原本的那一個，所以可以直接在上面加入 ws.email = email
+    const redisListener = newRedisClient();
+    const redisPublisher = newRedisClient();
+    const channelName = ws.params.get('id');
+
+    // 訂閱 Redis, 讓我們可以收到同一個 Flow 中其他用戶的訊息
+    redisListener.subscribe(channelName, (err) => {
+      if (err) {
+        ws.close(1001);
+        return;
+      }
+      // 直接轉送其他用戶的位置
+      redisListener.on('message', (_, message) => {
+        ws.send(message);
       });
-  } else {
-    // node edit
-    console.log(req.url);
-    let agent;
-    try {
-      const stream = new WebSocketJSONStream(ws);
-      agent = sharedb.listen(stream);
-      ws.on('close', () => {
-        agent.close();
+
+      // 跟前端 bind 住，讓後端可以收到來自特定用戶的訊息，以發送給 Channel 上其他人
+      ws.on('message', async (message) => {
+        // 每次他們送 x, y 來的時候, 還會送到指定的 channel 上（nodeId）
+        const query = JSON.parse(message.toString('utf-8'));
+        await redisPublisher.publish(
+          channelName,
+          JSON.stringify({
+            email: ws.email,
+            ...query,
+          }),
+        );
       });
-    } catch (e) {
-      ws.close(1000);
-      await agent.close();
-    }
-    // getSession(req.headers.cookie)
-    //     .then((sess) => {
-    //         try {
-    //             const email = sess.email;
-    //             const params = new URLSearchParams(query);
-    //             Node.CanUserEdit(
-    //                 params.get('id'),
-    //                 params.get('id').split('-')[0],
-    //                 email
-    //             )
-    //                 .then((can) => {
-    //                     if (can) {
-    //                         const stream = new WebSocketJSONStream(ws);
-    //                         sharedb.listen(stream);
-    //                     } else {
-    //                         // Unauthorized. 你沒有權限進入這個 component
-    //                         ws.close(1000);
-    //                     }
-    //                 })
-    //                 .catch((e) => {
-    //                     // Component not exists. 嘗試讀取不存在的 List
-    //                     ws.close(1001);
-    //                 });
-    //         } catch (e) {
-    //             // Internal Server Error
-    //             ws.close(4999);
-    //         }
-    //     })
-    //     .catch((e) => {
-    //         // You have no session. 我不認識你
-    //         ws.close(1002, 'Unauthorized.');
-    //     });
-  }
+    });
+  })
+  .session('/flow', (ws) => {
+    const stream = new WebSocketJSONStream(ws);
+    sharedb.listen(stream);
+  })
+  .no_session('/node', (ws) => {
+    const stream = new WebSocketJSONStream(ws);
+    sharedb.listen(stream);
+  });
+
+wsServer.on('connection', (ws, req) => {
+  router.serve(ws, req);
 });
 
 server.listen(3000);
+
+console.log('Listening!');
 
 export default server;

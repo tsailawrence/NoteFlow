@@ -2,78 +2,71 @@
 import { getMongoClient } from '../../mongoClient.js';
 
 class FlowList {
-    constructor(user) {
-        this.user = user;
-        this.flowList = {};
+  constructor(user) {
+    this.user = user;
+    this.flowList = {};
+  }
+
+  static async genFlowListProfile(userEmail) {
+    const result = {
+      user: userEmail,
+      flowList: [],
+    };
+
+    const mongoClient = getMongoClient();
+
+    const database = mongoClient.db('noteflow');
+    const collection = database.collection('flowList');
+    if (await collection.findOne({ user: result.user })) {
+      return; // We have created for this user.
     }
+    await collection.insertOne(result);
+  }
 
-    static async genFlowListProfile(userEmail) {
-        const result = {
-            user: userEmail,
-            flowList: [],
-        };
+  async fetchFlowList() {
+    const mongoClient = getMongoClient();
 
-        const mongoClient = getMongoClient();
-        await mongoClient.connect();
-        const database = mongoClient.db('noteflow');
-        const collection = database.collection('flowList');
-        if (await collection.findOne({ user: result.user })) {
-            return; // We have created for this user.
-        }
-        await collection.insertOne(result);
+    const database = mongoClient.db('noteflow');
+    const collection = database.collection('flowList');
 
-        await mongoClient.close();
-    }
+    this.flowList = (
+      await collection.findOne({
+        user: this.user,
+      })
+    ).flowList;
+  }
 
-    async fetchFlowList() {
-        const mongoClient = getMongoClient();
-        await mongoClient.connect();
-        const database = mongoClient.db('noteflow');
-        const collection = database.collection('flowList');
+  async addSomebodyToFlowList(userEmail, flowId) {
+    const mongoClient = getMongoClient();
 
-        this.flowList = (
-            await collection.findOne({
-                user: this.user,
-            })
-        ).flowList;
+    const database = mongoClient.db('noteflow');
+    const collection = database.collection('flowList');
+    await collection.findOneAndUpdate(
+      {
+        user: userEmail,
+      },
+      {
+        $addToSet: { flowList: { owner: this.user, flowId } },
+      },
+    );
+  }
 
-        await mongoClient.close();
-    }
+  // eslint-disable-next-line class-methods-use-this
+  async removeSomebodyFromFlowList(userEmail, flowId) {
+    const mongoClient = getMongoClient();
 
-    async addSomebodyToFlowList(userEmail, flowId) {
-        const mongoClient = getMongoClient();
-        await mongoClient.connect();
-        const database = mongoClient.db('noteflow');
-        const collection = database.collection('flowList');
-        await collection.findOneAndUpdate(
-            {
-                user: userEmail,
-            },
-            {
-                $addToSet: { flowList: { owner: userEmail, flowId } },
-            }
-        );
+    const database = mongoClient.db('noteflow');
+    const collection = database.collection('flowList');
 
-        await mongoClient.close();
-    }
-
-    async removeSomebodyFromFlowList(userEmail, flowId) {
-        const mongoClient = getMongoClient();
-        await mongoClient.connect();
-        const database = mongoClient.db('noteflow');
-        const collection = database.collection('flowList');
-
-        await collection.findOneAndUpdate(
-            {
-                user: userEmail,
-            },
-            {
-                $pull: { [`flowList.${this.user}`]: flowId },
-            }
-        );
-
-        await mongoClient.close();
-    }
+    await collection.findOneAndUpdate(
+      {
+        user: userEmail,
+      },
+      {
+        $pull: { flowList: { flowId: { $eq: flowId } } },
+      },
+    );
+  }
 }
 
 export default FlowList;

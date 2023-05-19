@@ -28,6 +28,8 @@ const updateUserInfo = async (ctx) => {
 
     ctx.logined = true;
     ctx.session.account = user.email;
+    await ctx.session.save();
+
     ctx.body = { user: _.omit(user, ['password']) };
     ctx.status = 200;
   } catch (err) {

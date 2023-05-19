@@ -57,14 +57,16 @@
     //   padding: 0;
     //   margin: 0;
     //   width: calc(100% - 160px);
-    height: 90%;
+    height: calc(100% - 10%);
+    flex: 1;
+    overflow-y: scroll;
+    overflow-x: hidden;
 
-    .Flow-grid {
-      height: 93%;
-      overflow-y: scroll;
-      //     background-color: white;
-      //     flex: 1;
-      //     overflow-y: scroll;
-    }
+    // .Flow-grid {
+    // max-height: 100%;
+    // overflow-y: scroll;
+    //     background-color: white;
+    // flex: 1;
+    // }
   }
 }

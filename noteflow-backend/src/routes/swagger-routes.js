@@ -9,12 +9,12 @@ const spec = yamljs.load(path.resolve('config/swagger.yaml'));
 const router = new Router();
 
 router.get(
-    '/',
-    koaSwagger({
-        favicon: '/swagger.png',
-        routePrefix: false,
-        swaggerOptions: { spec },
-    })
+  '/',
+  koaSwagger({
+    favicon: '/swagger.png',
+    routePrefix: false,
+    swaggerOptions: { spec },
+  }),
 );
 
 export default router.routes();
