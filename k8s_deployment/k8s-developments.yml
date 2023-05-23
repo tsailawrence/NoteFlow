@@ -31,14 +31,14 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mongo
+      app: mongodb
   template:
     metadata:
       labels:
-        app: mongo
+        app: mongodb
     spec:
       containers:
-      - name: mongo
+      - name: mongodb
         image: "mongo:6.0.5"
         envFrom:
         - configMapRef:
@@ -85,7 +85,8 @@ spec:
       - name: mongo-express
         image: "mongo-express:latest"
         ports:
-          - containerPort: 8080:8081
+          - containerPort: 8080
+          - containerPort: 8081
         envFrom:
         - configMapRef:
             name: mongo-express-configmap
@@ -170,7 +171,7 @@ spec:
       - name: frontend
         image: "node:lts"
         ports:
-          - containerPort: 7415:7415
+          - containerPort: 7415
         workingDir: /frontend
         command: ["sh"]
         args: ["-c", "yarn install && yarn vite"]
@@ -210,6 +211,7 @@ spec:
         image: "node:lts"
         ports:
           - containerPort: 3000
+          - containerPort: 3001
         workingDir: /backend
         command: ["sh"]
         args: ["-c", "yarn install && yarn vite"]
@@ -221,7 +223,7 @@ spec:
 
         volumeMounts:
           - name: backend-script
-            mountPath: /frobackendntend
+            mountPath: /backend
             readOnly: true
       volumes:
         - name: backend-script
@@ -258,7 +260,7 @@ spec:
 
         volumeMounts:
           - name: backend-script
-            mountPath: /frobackendntend
+            mountPath: /backend
             readOnly: true
       volumes:
         - name: backend-script

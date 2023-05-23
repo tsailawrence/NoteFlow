@@ -14,14 +14,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo
+  name: mongodb
 spec:
   selector:
-    app: mongo
+    app: mongodb
   ports:
     - protocol: TCP
-      port: 5432
-      targetPort: 5432
+      port: 27017
+      targetPort: 27017
 
 ---
 apiVersion: v1
@@ -33,8 +33,21 @@ spec:
     app: mongo-express
   ports:
     - protocol: TCP
-      port: 5432
-      targetPort: 5432
+      port: 8081
+      targetPort: 8081
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-session
+spec:
+  selector:
+    app: redis-session
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
 
 ---
 apiVersion: v1
@@ -44,10 +57,16 @@ metadata:
 spec:
   selector:
     app: backend
+    
   ports:
-    - protocol: TCP
-      port: 5432
-      targetPort: 5432
+    - name: port1
+      protocol: TCP
+      port: 3001
+      targetPort: 3001
+    - name: port2
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
 
 
 ---
@@ -60,6 +79,6 @@ spec:
     app: frontend
   ports:
     - protocol: TCP
-      port: 5432
-      targetPort: 5432
+      port: 7415
+      targetPort: 7415
 

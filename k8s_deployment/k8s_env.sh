@@ -4,9 +4,9 @@ export NODE_ENV=development
 export VITE_DEV=1
 export NOTEFLOW_BACKEND=localhost
 export PHOTO_FS=noteflow.live
-export BACKEND_EXPOSE_PORT=3001
-export FRONTEND_EXPOSE_PORT=7415
-export MONGO_EXPRESS_EXPOSE_PORT=8082
+export BACKEND_EXPOSE_PORT="3001"
+export FRONTEND_EXPOSE_PORT="7415"
+export MONGO_EXPRESS_EXPOSE_PORT="8082"
 
 export MONGO_HOST=mongo
 export MONGO_DB=noteflow
@@ -24,12 +24,12 @@ export POSTGRES_HOST=postgres
 export POSTGRES_DB=noteflow
 export POSTGRES_USER=user
 export POSTGRES_PASSWORD=112a
-export POSTGRES_PORT=5432
+export POSTGRES_PORT="5432"
 
 export REDIS_HOST=redis
-export REDIS_PORT=6379
+export REDIS_PORT="6379"
 export REDIS_SESSION_HOST=redis-session
-export REDIS_SESSION_PORT=6379
+export REDIS_SESSION_PORT="6379"
 export REDIS_ACCOUNT=default
 export REDIS_PASSWORD=ntuim-sdm-6
 
