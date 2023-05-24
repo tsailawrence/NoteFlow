@@ -162,7 +162,7 @@ spec:
         ports:
           - containerPort: 3000
         command: ["/bin/bash","-c"]
-        args: ["npm install && eval ${INIT_CMD1} && npm run start"]
+        args: ["npm install && npm run MONGO_INIT && npm run db:migrate && npm run start"]
         envFrom:
         - configMapRef:
             name: backend-configmap

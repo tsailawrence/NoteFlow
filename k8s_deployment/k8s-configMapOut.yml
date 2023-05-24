@@ -3,10 +3,10 @@ kind: ConfigMap
 metadata:
   name: postgres-configmap
 data:
-  POSTGRES_HOST : postgres
-  POSTGRES_DB : noteflow
-  POSTGRES_USER : user
-  POSTGRES_PASSWORD : '112a'
+  POSTGRES_HOST: postgres
+  POSTGRES_DB: noteflow
+  POSTGRES_USER: user
+  POSTGRES_PASSWORD : 112a
   POSTGRES_PORT : '5432'
 
 ---
@@ -18,6 +18,8 @@ metadata:
 data:
   MONGO_INITDB_ROOT_USERNAME: root
   MONGO_INITDB_ROOT_PASSWORD: 112a
+  MONGO_NOTEFLOW_USERNAME: jounglab
+  MONGO_NOTEFLOW_PASSWORD: 112a
   MONGO_INITDB_DATABASE: noteflow
 
 ---
@@ -36,8 +38,8 @@ kind: ConfigMap
 metadata:
   name: frontend-configmap
 data:
-  VITE_NOTEFLOW_BACKEND: localhost
-  VITE_NOTEFLOW_PORT: '3001'
+  VITE_NOTEFLOW_BACKEND: backend
+  VITE_NOTEFLOW_PORT: '3000'
   VITE_DEV: '1'
   FRONTEND_EXPOSE_PORT: '7415'
 
@@ -49,7 +51,7 @@ kind: ConfigMap
 metadata:
   name: backend-configmap
 data:
-    MONGO_HOST: mongo
+    MONGO_HOST: 'mongo'
     MONGO_DB: noteflow
     MONGO_INITDB_ROOT_USERNAME: root
     MONGO_INITDB_ROOT_PASSWORD: 112a
@@ -79,7 +81,7 @@ data:
     REFRESH_TOKEN: 1//04vU3MLSFDeuHCgYIARAAGAQSNwF-L9IrVWpGmc-faTN90oNZhAmsz6bSihr37YJOdwlzRybSY697OZCe0VHQh0vQYTHfpAJckbQ
     CLIENT_SECRET: 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
     CLIENT_ID: 390935399634-bpk359lp2lks426la19bk11b1hv9c4m8.apps.googleusercontent.com
-    INIT_CMD1: "mongosh -u root -p 112a --host mongo --port 27017 -e db.createUser({user:'root',pwd:'112a',roles:[{role:'readWrite',db:'noteflow'}]})"
+    MONGO_BOOTSTRAP_CMD: db.createUser({user:'root',pwd:'112a',roles:[{role:'readWrite',db:'noteflow'}]}) 
 
 
 ---
