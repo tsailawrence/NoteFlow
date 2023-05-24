@@ -31,14 +31,14 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mongodb
+      app: mongo
   template:
     metadata:
       labels:
-        app: mongodb
+        app: mongo
     spec:
       containers:
-      - name: mongodb
+      - name: mongo
         image: "mongo:6.0.5"
         envFrom:
         - configMapRef:
@@ -53,7 +53,6 @@ spec:
             mountPath: /data/configdb
           - name: mongo-init-script
             mountPath: /docker-entrypoint-initdb.d/mongo-init.js
-            readOnly: true
       volumes:
         - name: noteflow-data
           emptyDir: {}
@@ -61,7 +60,7 @@ spec:
           emptyDir: {}
         - name: mongo-init-script
           hostPath:
-            path: ./mongo/mongo-init.js
+            path: /code777/mongo/mongo-init.js
             type: File
 
 
@@ -92,24 +91,6 @@ spec:
             name: mongo-express-configmap
         - secretRef:
             name: mongo-express-secret
-
-        volumeMounts:
-          - name: noteflow-data
-            mountPath: /data/db
-          - name: noteflow-config
-            mountPath: /data/configdb
-          - name: mongo-init-script
-            mountPath: /docker-entrypoint-initdb.d/mongo-init.js
-            readOnly: true
-      volumes:
-        - name: noteflow-data
-          emptyDir: {}
-        - name: noteflow-config
-          emptyDir: {}
-        - name: mongo-init-script
-          hostPath:
-            path: ./mongo/mongo-init.js
-            type: File
 
 --- 
 
@@ -173,23 +154,23 @@ spec:
         ports:
           - containerPort: 7415
         workingDir: /frontend
-        command: ["sh"]
-        args: ["-c", "yarn install && yarn vite"]
+        command: ["/bin/sh","-c"]
+        args: ["yarn install && yarn vite"]
         envFrom:
         - configMapRef:
-            name: mongo-configmap
-        - secretRef:
-            name: mongo-secret
+            name: frontend-configmap
 
         volumeMounts:
-          - name: frontend-script
+          - name: frontend-script-origin
             mountPath: /frontend
-            readOnly: true
       volumes:
-        - name: frontend-script
+        - name: frontend-script-origin
           hostPath:
-            path: ./noteflow-frontend
+            path: /code777/noteflow-frontend
             type: Directory
+        - name: frontend-script
+          emptyDir: {}
+
 
 ---
 apiVersion: apps/v1
@@ -213,22 +194,19 @@ spec:
           - containerPort: 3000
           - containerPort: 3001
         workingDir: /backend
-        command: ["sh"]
-        args: ["-c", "yarn install && yarn vite"]
+        command: ["/bin/sh","-c"]
+        args: ["npm install && npm run start"]
         envFrom:
         - configMapRef:
             name: backend-configmap
-        - secretRef:
-            name: backend-secret
 
         volumeMounts:
           - name: backend-script
             mountPath: /backend
-            readOnly: true
       volumes:
         - name: backend-script
           hostPath:
-            path: ./noteflow-backend
+            path: /code777/noteflow-backend
             type: Directory
 
 --- 
@@ -250,20 +228,17 @@ spec:
       - name: migrate
         image: "node:lts"
         workingDir: /backend
-        command: ["sh"]
-        args: ["-c", "npm install && npm run db:migrate"]
+        command: ["/bin/sh","-c"]
+        args: ["npm install && npm run db:migrate"]
         envFrom:
         - configMapRef:
-            name: backend-configmap
-        - secretRef:
-            name: backend-secret
+            name: migrate-configmap
 
         volumeMounts:
-          - name: backend-script
+          - name: migrate-script
             mountPath: /backend
-            readOnly: true
       volumes:
-        - name: backend-script
+        - name: migrate-script
           hostPath:
-            path: ./noteflow-backend
+            path: /code777/noteflow-backend
             type: Directory

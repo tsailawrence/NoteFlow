@@ -9,20 +9,20 @@ spec:
     - protocol: TCP
       port: 5432
       targetPort: 5432
-
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongodb
+  name: mongo
 spec:
   selector:
-    app: mongodb
+    app: mongo
   ports:
     - protocol: TCP
       port: 27017
       targetPort: 27017
-
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
@@ -35,7 +35,7 @@ spec:
     - protocol: TCP
       port: 8081
       targetPort: 8081
-
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
@@ -48,7 +48,20 @@ spec:
     - protocol: TCP
       port: 6379
       targetPort: 6379
-
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  selector:
+    app: redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
@@ -67,7 +80,7 @@ spec:
       protocol: TCP
       port: 3000
       targetPort: 3000
-
+  type: NodePort
 
 ---
 apiVersion: v1
@@ -82,3 +95,4 @@ spec:
       port: 7415
       targetPort: 7415
 
+  type: NodePort
