@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-configmap
+data:
+  POSTGRES_HOST : postgres
+  POSTGRES_DB : noteflow
+  POSTGRES_USER : user
+  POSTGRES_PASSWORD : '112a'
+  POSTGRES_PORT : '5432'
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-configmap
+data:
+  MONGO_INITDB_ROOT_USERNAME: root
+  MONGO_INITDB_ROOT_PASSWORD: 112a
+  MONGO_INITDB_DATABASE: noteflow
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-express-configmap
+data:
+  ME_CONFIG_MONGODB_URL: 'mongodb://root:112a@mongo:27017/'
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-configmap
+data:
+  VITE_NOTEFLOW_BACKEND: localhost
+  VITE_NOTEFLOW_PORT: '3001'
+  VITE_DEV: '1'
+  FRONTEND_EXPOSE_PORT: '7415'
+
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-configmap
+data:
+    MONGO_HOST: mongo
+    MONGO_DB: noteflow
+    MONGO_INITDB_ROOT_USERNAME: root
+    MONGO_INITDB_ROOT_PASSWORD: 112a
+    MONGO_NOTEFLOW_USERNAME: jounglab
+    MONGO_NOTEFLOW_PASSWORD: 112a
+    MONGO_PORT: '27017'
+    PHOTO_FS: noteflow.live
+
+    POSTGRES_HOST: postgres
+    POSTGRES_DB: noteflow
+    POSTGRES_USER: user
+    POSTGRES_PASSWORD: 112a
+    POSTGRES_PORT: '5432'
+
+    REDIS_HOST: redis
+    REDIS_PORT: '6379'
+    REDIS_SESSION_HOST: redis-session
+    REDIS_SESSION_PORT: '6379'
+    REDIS_ACCOUNT: default
+    REDIS_PASSWORD: ntuim-sdm-6
+
+    S3_BUCKET_REGION: ap-northeast-1
+
+    EMAIL_HOST: https://localhost
+    EMAIL_USER: sdmnoteflow@gmail.com
+    EMAIL_PASSWORD: jounglab112a
+    REFRESH_TOKEN: 1//04vU3MLSFDeuHCgYIARAAGAQSNwF-L9IrVWpGmc-faTN90oNZhAmsz6bSihr37YJOdwlzRybSY697OZCe0VHQh0vQYTHfpAJckbQ
+    CLIENT_SECRET: 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
+    CLIENT_ID: 390935399634-bpk359lp2lks426la19bk11b1hv9c4m8.apps.googleusercontent.com
+    INIT_CMD1: "mongosh -u root -p 112a --host mongo --port 27017 -e db.createUser({user:'root',pwd:'112a',roles:[{role:'readWrite',db:'noteflow'}]})"
+
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: migrate-configmap
+data:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: noteflow
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 112a
+      POSTGRES_PORT: '5432'

@@ -46,24 +46,6 @@ spec:
         - secretRef:
             name: mongo-secret
 
-        volumeMounts:
-          - name: noteflow-data
-            mountPath: /data/db
-          - name: noteflow-config
-            mountPath: /data/configdb
-          - name: mongo-init-script
-            mountPath: /docker-entrypoint-initdb.d/mongo-init.js
-      volumes:
-        - name: noteflow-data
-          emptyDir: {}
-        - name: noteflow-config
-          emptyDir: {}
-        - name: mongo-init-script
-          hostPath:
-            path: /code777/mongo/mongo-init.js
-            type: File
-
-
 --- 
 
 apiVersion: apps/v1
@@ -150,27 +132,14 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: "node:lts"
+        image: "jounglab112a/noteflow-frontend:latest"
         ports:
           - containerPort: 7415
-        workingDir: /frontend
-        command: ["/bin/sh","-c"]
-        args: ["yarn install && yarn vite"]
+        command: ["/bin/bash","-c"]
+        args: ["yarn && yarn vite"]
         envFrom:
         - configMapRef:
             name: frontend-configmap
-
-        volumeMounts:
-          - name: frontend-script-origin
-            mountPath: /frontend
-      volumes:
-        - name: frontend-script-origin
-          hostPath:
-            path: /code777/noteflow-frontend
-            type: Directory
-        - name: frontend-script
-          emptyDir: {}
-
 
 ---
 apiVersion: apps/v1
@@ -189,56 +158,11 @@ spec:
     spec:
       containers:
       - name: backend
-        image: "node:lts"
+        image: "jounglab112a/noteflow-backend:latest"
         ports:
           - containerPort: 3000
-          - containerPort: 3001
-        workingDir: /backend
-        command: ["/bin/sh","-c"]
-        args: ["npm install && npm run start"]
+        command: ["/bin/bash","-c"]
+        args: ["npm install && eval ${INIT_CMD1} && npm run start"]
         envFrom:
         - configMapRef:
             name: backend-configmap
-
-        volumeMounts:
-          - name: backend-script
-            mountPath: /backend
-      volumes:
-        - name: backend-script
-          hostPath:
-            path: /code777/noteflow-backend
-            type: Directory
-
---- 
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: migrate-deployment
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: migrate
-  template:
-    metadata:
-      labels:
-        app: migrate
-    spec:
-      containers:
-      - name: migrate
-        image: "node:lts"
-        workingDir: /backend
-        command: ["/bin/sh","-c"]
-        args: ["npm install && npm run db:migrate"]
-        envFrom:
-        - configMapRef:
-            name: migrate-configmap
-
-        volumeMounts:
-          - name: migrate-script
-            mountPath: /backend
-      volumes:
-        - name: migrate-script
-          hostPath:
-            path: /code777/noteflow-backend
-            type: Directory
