@@ -1,0 +1,146 @@
+version: "3"
+
+services:
+  mongo:
+    image: mongo:6.0.5
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
+      MONGO_NOTEFLOW_USERNAME: $MONGO_NOTEFLOW_USERNAME
+      MONGO_NOTEFLOW_PASSWORD: $MONGO_NOTEFLOW_PASSWORD
+      MONGO_INITDB_DATABASE: $MONGO_DB
+    volumes:
+      - noteflow_data:/data/db
+      - noteflow_config:/data/configdb
+      - ./mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - noteflow
+
+  postgres:
+    image: "postgres:14.5-alpine"
+    volumes:
+      - data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+    networks:
+      - noteflow
+
+  mongo-express:
+    image: mongo-express:latest
+    restart: always
+    ports:
+      - $MONGO_EXPRESS_EXPOSE_PORT:8081
+    environment:
+      ME_CONFIG_BASICAUTH_USERNAME: $MONGO_EXPRESS_USERNAME
+      ME_CONFIG_BASICAUTH_PASSWORD: $MONGO_EXPRESS_PASSWORD
+      ME_CONFIG_MONGODB_ADMINUSERNAME: $MONGO_INITDB_ROOT_USERNAME
+      ME_CONFIG_MONGODB_ADMINPASSWORD: $MONGO_INITDB_ROOT_PASSWORD
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_URL: mongodb://$MONGO_INITDB_ROOT_USERNAME:$MONGO_INITDB_ROOT_PASSWORD@mongo:$MONGO_PORT/
+    depends_on:
+      - mongo
+    networks:
+      - noteflow
+
+  redis:
+    image: "redis:7.0"
+    networks:
+      - noteflow
+
+  redis-session:
+    image: "redis:7.0"
+    networks:
+      - noteflow
+
+  frontend:
+    image: "node:lts"
+    working_dir: /frontend
+    command: sh -c "yarn install && yarn vite"
+    networks:
+      - noteflow
+    ports:
+      - $FRONTEND_EXPOSE_PORT:$FRONTEND_EXPOSE_PORT
+    environment:
+      VITE_NOTEFLOW_BACKEND: $NOTEFLOW_BACKEND
+      VITE_NOTEFLOW_PORT: $BACKEND_EXPOSE_PORT
+      VITE_DEV: $VITE_DEV
+      FRONTEND_EXPOSE_PORT: $FRONTEND_EXPOSE_PORT
+    volumes:
+      - ./noteflow-frontend:/frontend
+
+  backend:
+    image: "node:lts"
+    working_dir: /backend
+    command: sh -c "npm install && npm run start"
+    networks:
+      - noteflow
+    ports:
+      - $BACKEND_EXPOSE_PORT:3000
+    environment:
+      MONGO_HOST: $MONGO_HOST
+      MONGO_DB: $MONGO_DB
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
+      MONGO_NOTEFLOW_USERNAME: $MONGO_NOTEFLOW_USERNAME
+      MONGO_NOTEFLOW_PASSWORD: $MONGO_NOTEFLOW_PASSWORD
+      MONGO_PORT: $MONGO_PORT
+      PHOTO_FS: $PHOTO_FS
+
+      POSTGRES_HOST: $POSTGRES_HOST
+      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_PORT: $POSTGRES_PORT
+
+      REDIS_HOST: $REDIS_HOST
+      REDIS_PORT: $REDIS_PORT
+      REDIS_SESSION_HOST: $REDIS_SESSION_HOST
+      REDIS_SESSION_PORT: $REDIS_SESSION_PORT
+      REDIS_ACCOUNT: $REDIS_ACCOUNT
+      REDIS_PASSWORD: $REDIS_PASSWORD
+
+      S3_BUCKET_REGION: $S3_BUCKET_REGION
+
+      EMAIL_HOST: $EMAIL_HOST
+      EMAIL_USER: $EMAIL_USER
+      EMAIL_PASSWORD: $EMAIL_PASSWORD
+      REFRESH_TOKEN: $REFRESH_TOKEN
+      CLIENT_SECRET: $CLIENT_SECRET
+      CLIENT_ID: $CLIENT_ID
+
+    depends_on:
+      - mongo
+      - postgres
+    volumes:
+      - ./noteflow-backend:/backend
+
+  migrate:
+    image: "node:lts"
+    working_dir: /backend
+    command: sh -c "npm install && npm run db:migrate"
+    networks:
+      - noteflow
+    environment:
+      POSTGRES_HOST: $POSTGRES_HOST
+      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_PORT: $POSTGRES_PORT
+    depends_on:
+      - backend
+    volumes:
+      - ./noteflow-backend:/backend
+
+volumes:
+  data:
+  noteflow_data:
+  noteflow_config:
+
+networks:
+  noteflow:
+    name: "noteflow"

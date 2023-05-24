@@ -1,0 +1,72 @@
+// .App {
+//   width: 100vw;
+//   height: 100vh;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   box-sizing: border-box;
+//   margin: 0;
+//   padding: 0;
+// }
+
+#root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.App-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  // align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+
+  .App-tab {
+    padding: 0;
+    margin: 0;
+    width: calc(100% - 160px);
+    min-height: 600px;
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+
+    .Flow-grid {
+      background-color: white;
+      flex: 1;
+      overflow-y: scroll;
+    }
+  }
+}
+// }
+
+.App-container-mobile {
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+
+  .App-tab {
+    //   padding: 0;
+    //   margin: 0;
+    //   width: calc(100% - 160px);
+    height: calc(100% - 10%);
+    flex: 1;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    // .Flow-grid {
+    // max-height: 100%;
+    // overflow-y: scroll;
+    //     background-color: white;
+    // flex: 1;
+    // }
+  }
+}

@@ -1,0 +1,25 @@
+// .TabButton.TabButton {
+//   background-color: black;
+// }
+
+.singleTab {
+  .tabIcon {
+    color: white;
+  }
+
+  &:hover {
+    .tabIcon {
+      color: black;
+    }
+  }
+}
+.crossTab {
+  .cross {
+    color: white;
+  }
+  &:hover {
+    .cross {
+      color: black;
+    }
+  }
+}

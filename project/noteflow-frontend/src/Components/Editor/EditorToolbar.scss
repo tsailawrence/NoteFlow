@@ -1,0 +1,131 @@
+.custom-pdf-btn {
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  button {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    right: 5px;
+    bottom: 3px;
+  }
+
+  .pdf-container {
+    width: 300px;
+    height: 40px;
+    position: absolute;
+    bottom: -50px;
+    left: -150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: #d0d0d0 solid 1px;
+    background-color: #ffffff;
+    box-shadow: 2px 2px 2px 1px rgba(0.1, 0.1, 0.1, 0);
+    padding: 2px;
+    z-index: 2;
+    visibility: hidden;
+
+    p {
+      margin: 0;
+      padding: 0;
+      z-index: 2;
+      font-size: 1vw;
+    }
+    .pdf-url-input {
+      z-index: 2;
+      margin: 0;
+      padding: 0;
+      font-size: 1vw;
+      width: 150px;
+    }
+
+    .pdf-submit-btn {
+      z-index: 2;
+      margin: 0;
+      padding: 5px;
+      font-size: 1vw;
+    }
+  }
+}
+
+.ql-editor {
+  iframe {
+    width: 100%;
+    height: 56.25vw;
+    max-height: calc(800px / 16 * 9);
+  }
+}
+
+.ql-image {
+  img {
+    resize: both;
+  }
+}
+
+.resources {
+  width: 200px;
+  height: 200px;
+  max-width: 100%;
+  max-height: 400px;
+  min-height: 200px;
+  min-width: 300px;
+  border-radius: 20px;
+  resize: both;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  .embed-responsive-item {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.ql-editor .ql-font-courier-new {
+  font-family: courier, "Courier New", serif;
+}
+.ql-editor .ql-font-georgia {
+  font-family: Georgia, serif;
+}
+.ql-editor .ql-font-Times-New-Roman {
+  font-family: Times New Roman, Georgia;
+}
+.ql-editor .ql-font-lucida {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+.ql-editor .ql-size-extra-small {
+  font-size: 0.3em;
+}
+.ql-editor .ql-font-comic-sans {
+  font-family: "Comic Sans MS", "Comic Sans", serif;
+}
+.ql-editor .ql-font-DFKai-sb {
+  font-family: "BiauKai", "DFKai-sb", "標楷體", KaiTi, serif;
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="comic-sans"]::before {
+  font-family: "Comic Sans MS", "Comic Sans";
+}
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="courier-new"]::before {
+  font-family: courier, "Courier New", serif;
+}
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="georgia"]::before {
+  font-family: Georgia, serif;
+}
+.ql-snow
+  .ql-picker.ql-font
+  .ql-picker-item[data-value="Times-New-Roman"]::before {
+  font-family: Times New Roman, sans-serif;
+}
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="lucida"]::before {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="DFKai-sb"]::before {
+  font-family: "BiauKai", "DFKai-sb", "標楷體", KaiTi, serif;
+}
+
+.ql-picker-label {
+  overflow: hidden;
+}

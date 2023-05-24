@@ -1,0 +1,22 @@
+button {
+  padding-top: 3%;
+  background-color: black;
+}
+
+.MuiDialog-paper {
+  .MuiPickersDay-root {
+    &:focus {
+      background-color: black;
+      color: white;
+    }
+  }
+}
+
+.MuiDayCalendar-monthContainer {
+  .MuiPickersDay-root {
+    &:focus {
+      background-color: black;
+      color: white;
+    }
+  }
+}
