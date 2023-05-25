@@ -15,7 +15,6 @@ export MONGO_INITDB_ROOT_PASSWORD=112a
 export MONGO_NOTEFLOW_USERNAME=jounglab
 export MONGO_NOTEFLOW_PASSWORD=112a
 export MONGO_PORT=27017
-export MONGO_BOOTSTRAP_CMD="db.createUser({user:'${MONGO_INITDB_ROOT_USERNAME}',pwd:'${MONGO_INITDB_ROOT_PASSWORD}',roles:[{role:'readWrite',db:'noteflow'}]})"
 
 export MONGO_EXPRESS_HOST=mongo-express
 export MONGO_EXPRESS_USERNAME=jounglab112a

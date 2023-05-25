@@ -81,7 +81,6 @@ data:
     REFRESH_TOKEN: 1//04vU3MLSFDeuHCgYIARAAGAQSNwF-L9IrVWpGmc-faTN90oNZhAmsz6bSihr37YJOdwlzRybSY697OZCe0VHQh0vQYTHfpAJckbQ
     CLIENT_SECRET: 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
     CLIENT_ID: 390935399634-bpk359lp2lks426la19bk11b1hv9c4m8.apps.googleusercontent.com
-    MONGO_BOOTSTRAP_CMD: db.createUser({user:'root',pwd:'112a',roles:[{role:'readWrite',db:'noteflow'}]}) 
 
 
 ---
