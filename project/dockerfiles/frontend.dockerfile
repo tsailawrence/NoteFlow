@@ -1,4 +1,4 @@
-FROM node:lts
+FROM --platform=linux/amd64 node:lts
 COPY ./noteflow-frontend /frontend
 WORKDIR /frontend
 RUN rm -r ./node_modules

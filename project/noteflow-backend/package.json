@@ -15,7 +15,7 @@
     "db:seed": "knex --knexfile src/model/postgres/knexfile.js seed:run",
     "db:rollback": "knex --knexfile src/model/postgres/knexfile.js migrate:rollback",
     "mongo:seed": "node src/model/mongodb/seeds/node-repo.js",
-    "MONGO_INIT": "mongosh -u root -p ${MONGO_INITDB_ROOT_PASSWORD} --host ${MONGO_HOST} --port ${MONGO_PORT} --eval \"${MONGO_BOOTSTRAP_CMD}\""
+    "MONGO_INIT": "mongosh -u root -p ${MONGO_INITDB_ROOT_PASSWORD} --host ${MONGO_HOST} --port ${MONGO_PORT} --eval \"db.getSiblingDB('noteflow').createUser({user: '${MONGO_NOTEFLOW_USERNAME}', pwd: '${MONGO_NOTEFLOW_PASSWORD}', roles: [{role: 'readWrite', db: 'noteflow'}]})\""
   },
   "author": "sdm-group-6",
   "license": "ISC",
