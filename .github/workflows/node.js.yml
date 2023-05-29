@@ -17,11 +17,7 @@ jobs:
           POSTGRES_DB: noteflow
         ports:
           - 5432:5432
-        options: |
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
       mongodb:
         image: mongo:latest
@@ -66,7 +62,7 @@ jobs:
           MONGO_INITDB_ROOT_PASSWORD: 112a
           MONGO_HOST: localhost
           MONGO_PORT: 27017
-          
+
       - name: Store coverage report as artifact
         uses: actions/upload-artifact@v2
         with:
