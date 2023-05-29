@@ -21,6 +21,12 @@ jobs:
 
       mongodb:
         image: mongo:latest
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: 112a
+          MONGO_NOTEFLOW_USERNAME: jounglab
+          MONGO_NOTEFLOW_PASSWORD: 112a
+          MONGO_INITDB_DATABASE: noteflow
         ports:
           - 27017:27017
 
