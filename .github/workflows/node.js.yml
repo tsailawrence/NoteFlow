@@ -52,14 +52,14 @@ jobs:
           npm test -- --coverage
         env:
           REDIS_HOST: localhost
-          REDIS_PORT: 6379
+          REDIS_PORT: ${{ job.services.redis.ports[6379] }}
           POSTGRES_USER: user
           POSTGRES_HOST: localhost
-          POSTGRES_PORT: 5432
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           MONGO_INITDB_ROOT_USERNAME: root
           MONGO_INITDB_ROOT_PASSWORD: 112a
           MONGO_HOST: localhost
-          MONGO_PORT: 27017
+          MONGO_PORT: ${{ job.services.mongodb.ports[27017] }}
 
       - name: Store coverage report as artifact
         uses: actions/upload-artifact@v2
