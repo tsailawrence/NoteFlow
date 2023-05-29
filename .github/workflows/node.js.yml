@@ -1,10 +1,33 @@
 name: Node.js for unit-testing
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: noteflow-backend
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: 112a
+          POSTGRES_DB: noteflow
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
 
     steps:
       - name: Checkout code
@@ -13,12 +36,23 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18.16
+          node-version: 18.16.0
 
       - name: Install dependencies
         run: npm install
 
-      - name: Run unit tests
+      - name: Install NYC (if not already installed)
+        run: npm install --global nyc
+
+      - name: Run unit tests with coverage
         run: |
-          cd noteflow-backend/tests
-          sh c8.sh
+          npm test -- --coverage
+        env:
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+
+      - name: Store coverage report as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: coverage/lcov.info
