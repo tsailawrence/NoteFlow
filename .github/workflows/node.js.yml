@@ -1,6 +1,6 @@
 name: Node.js for unit-testing
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   test:
@@ -50,6 +50,8 @@ jobs:
         env:
           REDIS_HOST: localhost
           REDIS_PORT: 6379
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
 
       - name: Store coverage report as artifact
         uses: actions/upload-artifact@v2
