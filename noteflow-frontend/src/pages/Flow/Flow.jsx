@@ -1,4 +1,10 @@
-import React, { useCallback, useState, useRef, useEffect } from 'react';
+import React, {
+  useCallback,
+  useState,
+  useRef,
+  useEffect,
+  forwardRef,
+} from 'react';
 import ReactFlow, {
   Position,
   Controls,
@@ -73,8 +79,6 @@ function Flow() {
   const [changeStyleContent, setChangeStyleContent] = useState(null);
   const [nodeIsEditing, setNodeIsEditing] = useState(null);
   const { nodeMenuOpen, setNodeMenuOpen } = useParams();
-
-  console.log('mini ref:', miniRef.current);
 
   // for node remove
   const [lastSelectedNode, setLastSelectedNode] = useState(null);
@@ -274,11 +278,13 @@ function Flow() {
           record[email] = true;
           FlowWebSocket.createInstance(email, 'sub-flow').then((instance) => {
             const oldInstance = document.getElementById(`sub-flow-${email}`);
-            if (oldInstance) {
-              subRef.current.removeChild(oldInstance);
-            }
+            // if (oldInstance) {
+            //   subRef.current.removeChild(oldInstance);
+            // }
             instance.onclick = (e) => {
               const { xPort, yPort } = tracker[email];
+              console.log('teleport to ', -xPort, -yPort);
+              console.log('rf instance:', rfInstance);
               rfInstance.setViewport({ x: -xPort, y: -yPort, zoom: 1 });
             };
             subRef.current.appendChild(instance);
@@ -299,9 +305,9 @@ function Flow() {
     [subRef, rfInstance],
   );
 
-  useEffect(() => {
-    if (!rfInstance) return;
-  }, [rfInstance]);
+  // useEffect(() => {
+  //   if (!rfInstance) return;
+  // }, [rfInstance]);
 
   useEffect(() => {
     if (!flowId) {
@@ -402,7 +408,7 @@ function Flow() {
     instance
       .post('/nodes/new-node')
       .then((res) => {
-        const editorId = res.data.nodeId;
+        const editorId = res.data;
         const newNode = {
           id: nodeId.current.toString(),
           data: {
@@ -481,6 +487,7 @@ function Flow() {
       Object.keys(flowWebSocket.mouseTracker).forEach((email) => {
         if (email !== convert(user.email)) {
           // 停滯不動的其他人，也需要刷新他們的位置
+          console.log('刷新', email);
           flowWebSocket.receiveLocation(email);
         }
       });
@@ -501,8 +508,6 @@ function Flow() {
   }, [changeLabelId, flowWebSocket]);
 
   useEffect(() => {
-    console.log('changeLabelId: ', changeLabelId);
-    console.log('flowWebSocket: ', flowWebSocket);
     if (changeStyleContent && flowWebSocket) {
       const param = [
         {
@@ -599,7 +604,6 @@ function Flow() {
               'edge',
             );
           }}
-          // onInit={setRfInstance}
           snapToGrid={true}
           onNodeDoubleClick={(event, node) => {
             onNodeDoubleClick(event, node);

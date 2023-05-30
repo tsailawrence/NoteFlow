@@ -7,9 +7,10 @@
   "scripts": {
     "start": "set NODE_ENV=development && npx nodemon ./src/app.js",
     "start-prod": "set NODE_ENV=production && npx nodemon ./src/app.js",
-    "test": "mocha tests --exit --recursive",
+    "test": "mocha tests --exit --recursive ",
+    "test2": "mocha tests --exit --recursive --grep \"colab list handling\"",
     "coverage": "nyc mocha tests --exit --recursive",
-    "c8": "c8 npm run test",
+    "c8": "c8 --exclude \"src/lib/**\" --exclude \"src/app.js\" --exclude \"tests\" --exclude \"src/routes/ws-router.js\" npm run test",
     "format": "prettier --config .prettierrc \"**/*.+(js|json)\" --write",
     "lint": "eslint src/**/*.js --fix && eslint tests/**/*.js --fix",
     "db:migrate": "knex --knexfile src/model/postgres/knexfile.js migrate:latest",
@@ -29,6 +30,7 @@
     "argon2": "^0.30.3",
     "aws-sdk": "^2.1386.0",
     "bcrypt": "^5.1.0",
+    "c8": "^7.14.0",
     "chai": "^4.3.7",
     "config": "^3.3.9",
     "crypto-js": "^4.1.1",
@@ -78,6 +80,7 @@
     "mocha": "^10.2.0",
     "node-fetch": "^3.3.1",
     "nodemon": "^2.0.21",
-    "prettier": "^2.8.6"
+    "prettier": "^2.8.6",
+    "supertest": "^6.3.3"
   }
 }

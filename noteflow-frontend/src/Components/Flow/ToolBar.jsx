@@ -33,8 +33,6 @@ export default function ToolBar({
   const handleShow = () => setShow(true);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  console.log('anchor element:', anchorEl);
-
   const open = Boolean(anchorEl);
 
   const changeBG = (bg) => {
@@ -109,7 +107,7 @@ export default function ToolBar({
       <div className="right">
         <div
           ref={subRef}
-          style={{ display: 'flex' }}
+          style={{ display: isEdit ? 'none' : 'flex' }}
           className="mouse-dot-subscribe"
         ></div>
         <Button

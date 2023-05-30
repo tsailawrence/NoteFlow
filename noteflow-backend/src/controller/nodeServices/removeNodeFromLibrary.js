@@ -7,13 +7,12 @@ const removeNodeFromLibrary = async (ctx) => {
   if (!id) {
     ctx.throw(CODE.insufficient);
   }
-
+  let resolved;
   try {
-    await Library.removeNode(id, ctx.session.email);
-    ctx.status = CODE.success;
-  } catch {
-    ctx.throw(CODE.internal_error);
-  }
+    resolved = await Library.removeNode(id, ctx.session.email);
+  } catch {}
+
+  ctx.status = resolved ? CODE.success : CODE.internal_error;
 };
 
 export default removeNodeFromLibrary;

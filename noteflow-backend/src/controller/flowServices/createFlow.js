@@ -9,13 +9,14 @@ const createFlow = async (ctx) => {
     flowId = await Flow.generateFlowId(owner);
   } catch (err) {}
 
-  if(flowId) {
-    const flow = new Flow(flowId, '', owner);
-    await flow.newify();
+  let success;
+  if (flowId) {
+    console.log('newify!!');
+    success = await Flow.newify(flowId);
   }
 
   ctx.body = JSON.stringify(flowId);
-  ctx.status = flowId ? CODE.success : CODE.internal_error;
+  ctx.status = success && flowId ? CODE.success : CODE.internal_error;
 };
 
 export default createFlow;

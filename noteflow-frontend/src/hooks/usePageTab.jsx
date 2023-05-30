@@ -147,7 +147,6 @@ const PageTabProvider = (props) => {
         tabToFlowSetting,
         setActiveTab,
         setTabList,
-        renameTab,
         flowWebSocket,
         renewFlowWebSocket,
       }}

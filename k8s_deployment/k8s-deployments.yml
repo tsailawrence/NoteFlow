@@ -20,12 +20,13 @@ spec:
             name: postgres-configmap
         - secretRef:
             name: postgres-secret
-      volumeMounts:
+        volumeMounts:
+          - name: nf-postgres-volume
+            mountPath: /var/lib/postgresql/data
+      volumes:
         - name: nf-postgres-volume
-          mountPath: /var/lib/postgresql/data
-    volumes:
-      - name: nf-postgres-volume
-        persistentVolumeClaim: nf-postgres-pvc
+          persistentVolumeClaim: 
+            claimName: nf-postgres-pvc
 
 --- 
 
@@ -51,12 +52,13 @@ spec:
             name: mongo-configmap
         - secretRef:
             name: mongo-secret
-      volumeMounts:
+        volumeMounts:
+          - name: nf-mongo-volume
+            mountPath: /data
+      volumes:
         - name: nf-mongo-volume
-          mountPath: /data
-    volumes:
-      - name: nf-mongo-volume
-        persistentVolumeClaim: nf-mongo-pvc
+          persistentVolumeClaim: 
+            claimName: nf-mongo-pvc
 
 
 --- 

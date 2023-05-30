@@ -1,12 +1,7 @@
 前後端開發
 
-    // "transform": {
-    //   "^.+\\.(js|jsx)$": "babel-jest",
-    //   "^.+\\.tsx?$": "ts-jest"
-    // },
-
 ```bash
-docker compose --env-file .compose.env up -d
+docker compose --env-file .env.local up -d
 ## frontend will be open on 7415 by default.
 ## but for same origin policy, you must not specify port when you want to access noteflow.
 ## you need to install and configure nginx for non-port support.
@@ -15,7 +10,7 @@ docker compose --env-file .compose.env up -d
 ## where variable name is *-EXPOSE-PORT.
 ## but you should edit the port at nginx.conf either.
 
-docker compose --env-file .compose.env down
+docker compose --env-file .env.local down
 ## compose for the first time will take longer time
 ## because it has to install all the dependencies.
 ## you can always use "docker logs <container name>" to see how it is going.

@@ -37,19 +37,22 @@ class Flow {
 
   // 會順便連 flow preview 也一起存起來
 
-  async newify() {
+  static async newify(flowId) {
+    const owner = flowId.split('-')[0];
     const mongoClient = getMongoClient();
+
+    const flow = new Flow(flowId, '', owner);
 
     const database = mongoClient.db('noteflow');
     const collection = database.collection('flows');
 
-    const is = await collection.findOneAndUpdate(
+    let is = await collection.findOneAndUpdate(
       {
-        user: this.owner,
+        user: owner,
       },
       {
         $addToSet: {
-          flows: _.omit({ ...this, updateAt: Date.now() }, [
+          flows: _.omit({ ...flow, updateAt: Date.now() }, [
             'owner',
             'edges',
             'nodes',
@@ -57,15 +60,16 @@ class Flow {
         },
       },
     );
+    console.log('is', is.lastErrorObject);
     if (!is.lastErrorObject.updatedExisting) {
-      await Flows.genFlowsProfile(this.owner);
-      await collection.findOneAndUpdate(
+      await Flows.genFlowsProfile(owner);
+      is = await collection.findOneAndUpdate(
         {
-          user: this.owner,
+          user: owner,
         },
         {
           $addToSet: {
-            flows: _.omit({ ...this, updateAt: Date.now() }, [
+            flows: _.omit({ ...flow, updateAt: Date.now() }, [
               'owner',
               'edges',
               'nodes',
@@ -75,14 +79,16 @@ class Flow {
       );
     }
 
-    const flowList = new FlowList(this.owner);
-    await flowList.addSomebodyToFlowList(this.owner, this.id);
-    await this.newify_sharedb();
+    const flowList = new FlowList(owner);
+    await flowList.addSomebodyToFlowList(owner, flowId);
+    await Flow.newify_sharedb();
+
+    return is.lastErrorObject.updatedExisting;
   }
 
-  async newify_sharedb() {
+  static async newify_sharedb(flowId) {
     const connection = sharedb.connect();
-    const doc = connection.get('flow-sharedb', this.id);
+    const doc = connection.get('flow-sharedb', flowId);
     doc.fetch((err) => {
       if (err) throw err;
       if (doc.type === null) {
@@ -93,6 +99,8 @@ class Flow {
 
   static async CanUserEdit(flowId, owner, target) {
     const mongoClient = getMongoClient();
+
+    console.log('can user edit!!');
 
     const database = mongoClient.db('noteflow');
     const collection = database.collection('flows');

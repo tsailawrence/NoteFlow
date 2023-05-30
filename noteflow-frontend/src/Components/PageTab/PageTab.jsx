@@ -25,16 +25,10 @@ export default function PageTab() {
   const navigate = useNavigate();
 
   const TabButton = styled(Button)(({ theme }) => ({
-    // backgroundColor: grey[700],
-    // border: "0px",
     border: '1px solid white',
-    // borderColor: grey[700],
-    // borderRight: "0",
     paddingRight: '20%',
     '&:hover': {
-      // backgroundColor: grey[600],
       backgroundColor: 'white',
-      // border: "0px",
       '& > icon': {
         color: 'black',
       },
@@ -103,7 +97,6 @@ export default function PageTab() {
         <Stack direction="row" spacing={1}>
           {tabList.map((tab, i) => {
             let tabTitle = tab.name;
-            console.log(tabTitle.length, '個字');
             const leng = 10;
             if (tabTitle?.length > leng) {
               tabTitle = tabTitle.substring(0, leng - 1) + '...';

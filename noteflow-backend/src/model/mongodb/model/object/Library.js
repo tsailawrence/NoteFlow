@@ -102,11 +102,12 @@ class Library {
     const database = mongoClient.db('noteflow');
     const collection = database.collection('library');
 
-    // await collection.findOneAndDelete({
-    //   user: email,
-    //   'nodes.id': id,
-    // });
-    await collection.updateOne({ user: email }, { $pull: { nodes: { id } } });
+    const res = await collection.findOneAndUpdate(
+      { user: email },
+      { $pull: { nodes: { id } } },
+    );
+
+    return res.lastErrorObject.updatedExisting;
   }
 }
 

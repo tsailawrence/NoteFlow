@@ -60,6 +60,8 @@ class Node {
       ])
       .toArray();
 
+    console.log(resolved);
+
     return resolved[0].colaborators;
   }
 }

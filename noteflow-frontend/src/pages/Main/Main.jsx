@@ -22,7 +22,10 @@ export default function Main() {
   }, []);
 
   return (
-    <div className={`${isMobile ? 'App-container-mobile' : 'App-container'}`}>
+    <div
+      className={`${isMobile ? 'App-container-mobile' : 'App-container'}`}
+      // style={{ maxHeight: '90vh' }}
+    >
       <Sidebar />
       <div className="App-tab">
         <PageTab />

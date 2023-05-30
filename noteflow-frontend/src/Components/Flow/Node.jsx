@@ -51,6 +51,36 @@ const CustomNode = ({ id, data }) => {
     setNodeMenuOpen(null);
   };
 
+  // 長按功能
+  const pressTimer = useRef(null);
+
+  const startPress = (event) => {
+    event.preventDefault();
+    pressTimer.current = setTimeout(() => {
+      console.log('hi');
+      // setVisible(true);
+      setNodeMenuOpen(id);
+    }, 1000);
+  };
+
+  const cancelPress = () => {
+    clearTimeout(pressTimer.current);
+    pressTimer.current = null;
+  };
+
+  // useEffect(() => {
+  //   const element = document.getElementById(`react-node-${id}`);
+  //   element.addEventListener('touchstart', () => {
+  //     console.log('hi');
+  //   });
+
+  //   return () => {
+  //     element.removeEventListener('touchstart', () => {
+  //       console.log('hi');
+  //     });
+  //   };
+  // }, []);
+
   return (
     <div
       // id={`react-node-${id}`}

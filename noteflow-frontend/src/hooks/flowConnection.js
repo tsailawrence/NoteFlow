@@ -108,15 +108,15 @@ class FlowWebSocket {
       //   divElement.style.top = `${(hisScope.y - myScope.yMin) * zoom}px`;
       // }
 
-      if (
-        heInMyScope.x >= myScope.xMin &&
-        heInMyScope.x <= myScope.xMax &&
-        heInMyScope.y >= myScope.yMin &&
-        heInMyScope.y <= myScope.yMax
-      ) {
-        divElement.style.left = `${heInMyScope.x - 25}px`;
-        divElement.style.top = `${heInMyScope.y - 25}px`;
-      }
+      // if (
+      //   heInMyScope.x >= myScope.xMin &&
+      //   heInMyScope.x <= myScope.xMax &&
+      //   heInMyScope.y >= myScope.yMin &&
+      //   heInMyScope.y <= myScope.yMax
+      // ) {
+      divElement.style.left = `${heInMyScope.x - 25}px`;
+      divElement.style.top = `${heInMyScope.y - 25}px`;
+      // }
     }
   }
 

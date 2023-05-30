@@ -7,7 +7,7 @@ const authorized = async (ctx, next) => {
     id = ctx.request.body.id;
   }
 
-  if(!id) {
+  if (!id) {
     ctx.throw(CODE.insufficient, 'You did not offer sufficient data');
   }
 

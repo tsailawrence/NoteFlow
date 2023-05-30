@@ -21,6 +21,7 @@ const getUserPhoto = async (ctx) => {
         db('users').insert({ picture: null }).where({ email });
       }
     }
+    // eslint-disable-next-line no-empty
   } catch (e) {}
 
   ctx.status = CODE.success;

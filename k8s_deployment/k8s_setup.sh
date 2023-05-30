@@ -6,3 +6,5 @@ kubectl apply -f k8s-secretOut.yml
 kubectl apply -f k8s-pv.yml
 kubectl apply -f k8s-deployments.yml
 kubectl apply -f k8s-service.yml
+kubectl patch deployment backend-deployment -p \
+  '{"spec":{"template":{"spec":{"terminationGracePeriodSeconds":31}}}}'

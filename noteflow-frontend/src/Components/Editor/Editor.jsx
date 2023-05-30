@@ -77,6 +77,8 @@ const Editor = ({ handleDrawerClose, editorId }) => {
       }
     });
 
+    console.log('editorId', editorId);
+
     instance
       .get(`/nodes/get-colab-list?id=${editorId}`)
       .then((res) => {})
