@@ -7,16 +7,32 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: 'noteflow-frontend'
+        working-directory: noteflow-backend
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_PASSWORD: 112a
+        ports:
+          - 5432:5432
 
-    strategy:
-      matrix:
-        node-version: [20.1]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+      mongodb:
+        image: mongo:latest
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: 112a
+          MONGO_NOTEFLOW_USERNAME: jounglab
+          MONGO_NOTEFLOW_PASSWORD: 112a
+          MONGO_INITDB_DATABASE: noteflow
+        ports:
+          - 27017:27017
+
+      redis:
+        image: redis:latest
+        ports:
+          - 6383:6379
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
       - name: Checkout code
         uses: actions/checkout@v3
 
