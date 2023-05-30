@@ -61,8 +61,11 @@ jobs:
           MONGO_HOST: localhost
           MONGO_PORT: ${{ job.services.mongodb.ports[27017] }}
 
-      # - name: Store coverage report as artifact
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: coverage-report
-      #     path: coverage/lcov.info
+      - name: Store coverage report as artifact
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: coverage-report
+          path: |
+            coverage/
+          retention-days: 15
