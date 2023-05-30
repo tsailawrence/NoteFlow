@@ -3,15 +3,15 @@ import CODE from '../../lib/httpStatus.js';
 
 const setFlowTitle = async (ctx) => {
   const { id, title } = ctx.request.body;
+  console.log('set flow title')
 
+  let result;
   try {
-    const result = await Flows.setTitle(id, title);
+    result = await Flows.setTitle(id, title);
+  } catch (e) {}
 
-    ctx.status = CODE.success;
-    ctx.body = JSON.stringify(result);
-  } catch (e) {
-    ctx.throw(CODE.internal_error, 'Internal server error');
-  }
+  ctx.status = result ? CODE.success : CODE.internal_error;
+  ctx.body = JSON.stringify(result);
 };
 
 export default setFlowTitle;

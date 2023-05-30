@@ -9,8 +9,15 @@ import { allocateColor } from '../API/Colab';
 sharedb.types.register(json1.type);
 
 class FlowWebSocket {
-  constructor(flowId, email, updateData, subscribeToToolbar) {
+  constructor(
+    flowId,
+    email,
+    updateNodeAndEdge,
+    subscribeToToolbar,
+    updateMetaData,
+  ) {
     this.subscribeToToolbar = subscribeToToolbar;
+    this.updateMetaData = updateMetaData;
     this.lastUpdated = Date.now();
     this.email = email;
     this.mounted = {};
@@ -29,13 +36,13 @@ class FlowWebSocket {
     };
     this.mouseLastUpdated = Date.now();
     if (!flowId) return;
-    this.nodeAndEdgeSub(flowId, updateData);
+    this.nodeAndEdgeSub(flowId, updateNodeAndEdge);
     this.mouseMovementSub(flowId);
+
     // [{email: ..., name: ..., x: ..., y: ...}]
   }
 
   updateInfo(params) {
-    // console.log(this.self);
     this.self = {
       ...this.self,
       ...params,
@@ -97,7 +104,6 @@ class FlowWebSocket {
       //   hisScope.y <= myScope.yMax
       // ) {
       //   // 透過 jquery 應該可以直接呈現在螢幕上。
-      //   // console.log('conform!');
       //   divElement.style.left = `${(hisScope.x - myScope.xMin) * zoom}px`;
       //   divElement.style.top = `${(hisScope.y - myScope.yMin) * zoom}px`;
       // }
@@ -130,7 +136,7 @@ class FlowWebSocket {
       if (res.data) {
         imgElement.src = res.data.startsWith('http')
           ? res.data
-          : `/api/${res.data}`;
+          : `/api/fs/image/${res.data}`;
       } else {
         imgElement.src = getRandomPicture(deconvert(email));
       }
@@ -150,19 +156,24 @@ class FlowWebSocket {
     );
 
     this.mouseSocket.addEventListener('message', (msg) => {
-      const position = JSON.parse(msg.data.toString('utf-8'));
-      if (!position || !position.email) return;
-      const email = convert(position.email);
-      delete position.email;
-      this.mouseTracker[email] = {
-        ...position,
-        lastUpdate: Date.now(),
-      };
-      if (email !== convert(this.email)) {
-        this.receiveLocation(email);
-      }
+      const response = JSON.parse(msg.data.toString('utf-8'));
+      if (response.type === 's') {
+        this.updateMetaData(response.title);
+      } else {
+        const position = response;
+        if (!position || !position.email) return;
+        const email = convert(position.email);
+        delete position.email;
+        this.mouseTracker[email] = {
+          ...position,
+          lastUpdate: Date.now(),
+        };
+        if (email !== convert(this.email)) {
+          this.receiveLocation(email);
+        }
 
-      this.subscribeToToolbar(this.mouseTracker, this.mounted);
+        this.subscribeToToolbar(this.mouseTracker, this.mounted);
+      }
     });
 
     this.interval = setInterval(() => {
@@ -192,7 +203,6 @@ class FlowWebSocket {
     const flow = connection.get(collection, flowId);
     flow.subscribe((e) => {
       if (e) throw e;
-      console.log('subscribed!');
       this.flow = flow;
       this.flow.on('op', (op) => {
         this.lastOp = op;
@@ -318,7 +328,6 @@ class FlowWebSocket {
         ].reduce(json1.type.compose, null);
         break;
       case 'select':
-        // if (type === 'edges') return console.log('窩還沒做 qq');
         currentNode =
           this.flow.data[type === 'node' ? 'nodes' : 'edges'][param[0].id];
 
@@ -335,7 +344,6 @@ class FlowWebSocket {
     }
     this.flow.submitOp(op, (error) => {
       if (error) {
-        // console.log(error);
         this.flow.submitOp(op);
       }
     });

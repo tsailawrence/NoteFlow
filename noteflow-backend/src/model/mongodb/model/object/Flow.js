@@ -21,9 +21,6 @@ class Flow {
   ) {
     // if(content instanceof ...) throw NotContentError...;
     this.id = flowId;
-    if (!Array.isArray(nodes) || !Array.isArray(edges)) {
-      throw Error('');
-    }
     this.name = flowName;
     this.thumbnail = thumbnail;
     this.owner = owner;

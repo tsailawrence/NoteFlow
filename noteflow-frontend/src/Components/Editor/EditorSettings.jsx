@@ -15,6 +15,7 @@ const Settings = ({ editorId, setShowSettings }) => {
   const [alarms, setAlarms] = useState('');
   const { user } = useApp();
   const { t } = useTranslation();
+
   useEffect(() => {
     instance
       .get(`/nodes/get-colab-list?id=${editorId}`)
@@ -50,7 +51,10 @@ const Settings = ({ editorId, setShowSettings }) => {
             }
           });
           setAllColabs(res.data);
-          setShowSettings(false);
+          if (canClose) {
+            // setShow(false);
+            setShowSettings(false);
+          }
         }
       })
       .catch((e) => {
@@ -69,9 +73,7 @@ const Settings = ({ editorId, setShowSettings }) => {
 
   useEffect(() => {
     if (allColabs) {
-      console.log(allColabs);
       allColabs.forEach((data, index) => {
-        console.log(index);
         const each = document.querySelector(`#colab-node-${index}`);
         if (data.status === 200) {
           each.style.border = undefined;
@@ -140,11 +142,12 @@ const Settings = ({ editorId, setShowSettings }) => {
                   // {
                   allColabs.map((data, index) => {
                     return data.type === 'remove' ? (
-                      <div
-                        id={`colab-node-${index}`}
-                        key={`colab-node-${index}`}
-                        style={{ display: 'none' }}
-                      ></div>
+                      // <div
+                      //   id={`colab-node-${index}`}
+                      //   key={`colab-node-${index}`}
+                      //   style={{ display: 'none' }}
+                      // ></div>
+                      <></>
                     ) : (
                       <div
                         id={`colab-node-${index}`}
@@ -165,12 +168,12 @@ const Settings = ({ editorId, setShowSettings }) => {
                               });
                               setRerender((state) => !state);
                             }}
-                            style={{
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
+                            // style={{
+                            //   cursor: 'pointer',
+                            //   display: 'flex',
+                            //   alignItems: 'center',
+                            //   justifyContent: 'center',
+                            // }}
                           >
                             <CloseIcon />
                           </div>

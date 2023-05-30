@@ -68,6 +68,7 @@ const Login = () => {
         navigateTo('/home');
       })
       .catch((e) => {
+        console.log(e);
         if (e.response.status === 401) {
           setAlarms('*Account or password error');
         } else if (Math.floor(e.response.status / 100) === 5) {

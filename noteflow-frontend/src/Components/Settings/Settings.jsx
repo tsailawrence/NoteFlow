@@ -63,12 +63,12 @@ const Settings = () => {
   const uploadPhoto = async () => {
     const imgInput = document.getElementById('avatar');
     const file = imgInput.files[0];
-    console.log(imgInput.files);
+
     const formData = new FormData();
     formData.append('image', file);
     await instance.post('/user/set-photo', formData).then((res) => {
       if (res.status === 200) {
-        setPhotoUrl(`/api/${res.data}`);
+        setPhotoUrl(`/api/fs/image/${res.data}`);
       }
     });
   };

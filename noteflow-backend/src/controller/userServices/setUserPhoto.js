@@ -8,6 +8,7 @@ const BASE_PATH = path.join(process.cwd(), 'images');
 
 const setUserPhoto = async (ctx) => {
   const { image } = ctx.request.files;
+  console.log('session:', ctx.session)
   const { email } = ctx.session;
 
   const by = image[0].mimetype.split('/')[1];

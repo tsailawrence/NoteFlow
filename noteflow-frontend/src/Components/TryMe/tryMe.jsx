@@ -51,7 +51,6 @@ const TryMe = () => {
           nodes={nodes}
           edges={edgesWithUpdatedTypes}
           onNodesChange={(param) => {
-            console.log(param);
             onNodesChange(param);
           }}
           onEdgesChange={onEdgesChange}

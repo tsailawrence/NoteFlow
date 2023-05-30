@@ -18,7 +18,6 @@ const register = async (ctx) => {
 
   // create User
   const result = await db('users').first().where({ email: user.email });
-  console.log(result);
   ctx.assert(
     !result,
     CODE.unauthorized,
@@ -30,7 +29,7 @@ const register = async (ctx) => {
   const token = crypto.SHA256(randomString).toString(crypto.enc.Hex);
   const password = await argon2.hash(user.password);
 
-  try {
+  // try {
     await db('users')
       .insert({
         uuid: uuidv4(),
@@ -66,9 +65,9 @@ const register = async (ctx) => {
     await createUserBucket(user.email);
 
     ctx.status = CODE.success;
-  } catch (err) {
-    ctx.throw(CODE.internal_error, JSON.stringify(err));
-  }
+  // } catch (err) {
+  //   ctx.throw(CODE.internal_error, JSON.stringify(err));
+  // }
 };
 
 export default register;

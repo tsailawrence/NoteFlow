@@ -23,21 +23,21 @@ class FlowList {
     await collection.insertOne(result);
   }
 
-  async fetchFlowList() {
+  static async fetchFlowList(user) {
     const mongoClient = getMongoClient();
 
     const database = mongoClient.db('noteflow');
     const collection = database.collection('flowList');
 
     const result = await collection.findOne({
-      user: this.user,
+      user
     });
 
-    if (result) {
-      this.flowList = result.flowList;
-    } else {
-      FlowList.genFlowListProfile(this.user);
+    if (!result) {
+      FlowList.genFlowListProfile(user);
+      return [];
     }
+    return result.flowList;
   }
 
   async addSomebodyToFlowList(userEmail, flowId) {

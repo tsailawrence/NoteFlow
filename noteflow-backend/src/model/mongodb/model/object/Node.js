@@ -13,10 +13,6 @@ class Node {
     this.updateAt = Date.now();
   }
 
-  validate() {
-    return !this.id || !this.type || !this.owner || !this.colaborators;
-  }
-
   addEditor() {
     const connection = sharedb.connect();
     const doc = connection.get('editor', this.id);
@@ -63,6 +59,8 @@ class Node {
         { $replaceRoot: { newRoot: '$nodes' } },
       ])
       .toArray();
+
+    console.log(resolved);
 
     return resolved[0].colaborators;
   }

@@ -4,15 +4,15 @@ import { koaBody } from 'koa-body';
 
 import logger from 'koa-logger';
 import { WebSocketServer } from 'ws';
-import https from 'https';
 import http from 'http';
-import koaSslify from 'koa-sslify';
 
+// import koaServe from 'koa-serve';
+import koaStatic from 'koa-static';
+import send from 'koa-send';
 import cors from '@koa/cors';
 import WebSocketJSONStream from '@teamwork/websocket-json-stream';
 import path from 'path';
 import fs from 'fs';
-import send from 'koa-send';
 
 import sharedb from './model/mongodb/sharedb.js';
 import redisClient, { newRedisClient } from './model/redis/redisClient.js';
@@ -20,15 +20,13 @@ import routes from './routes/index.js';
 import redisSession from './model/redis/redisSession.js';
 import WsRouter from './routes/ws-router.js';
 import { getMongoClient } from './model/mongodb/mongoClient.js';
+import { Flows } from './model/mongodb/model/index.js';
 
 const app = new Koa();
 
 if (!fs.existsSync(path.join(process.cwd(), 'images'))) {
   fs.mkdirSync(path.join(process.cwd(), 'images'));
 }
-
-const { default: sslify } = koaSslify;
-app.use(sslify());
 
 app.use(logger());
 app.use(
@@ -52,35 +50,28 @@ app.use(redisSession(app));
 app.use(koaBody());
 app.use(routes.allowedMethods());
 
-const server = https.createServer(
-  {
-    key: fs.readFileSync('./config/cert/server.key'),
-    cert: fs.readFileSync('./config/cert/server.cert'),
-  },
-  app.callback(),
-);
+const server = http.createServer(app.callback());
 
 const wsServer = new WebSocketServer({ server });
 
 app.use(async (ctx, next) => {
-  if (server instanceof http.Server) {
-    const { user } = ctx.request.body;
-    ctx.session = user ? { ...user } : ctx.session;
-  }
   await next();
 });
 
 app.use(routes.routes());
-// app.use(koaServe({ rootPath: '/', rootDir: 'images' }));
-// app.use(koaStatic(path.join(process.cwd(), 'images')));
+app.use(koaStatic(path.join(process.cwd(), 'dist')));
 app.use(async (ctx) => {
-  const url = ctx.request.url.split('/');
-  const image = url[url.length - 1];
-  await send(ctx, image, { root: path.join(process.cwd(), 'images') });
+  console.log('root');
+  await send(ctx, 'index.html', {
+    root: path.join(process.cwd(), 'dist'),
+    // setHeaders: (res) => {
+    //   res.setHeader('Content-Type', 'application/javascript');
+    // },
+  });
 });
 
 const router = new WsRouter()
-  .session('/node/registerNodeColab', (ws, can) => {
+  .session('/node/registerNodeColab', (ws) => {
     ws.on('message', async (message) => {
       try {
         const query = JSON.parse(message.toString('utf-8'));
@@ -106,11 +97,20 @@ const router = new WsRouter()
       }
     });
   })
-  .session('/flow/mouse-sub', (ws, can) => {
+  .session('/flow/mouse-sub', (ws) => {
     // 上面的 ws 會一直都是原本的那一個，所以可以直接在上面加入 ws.email = email
     const redisListener = newRedisClient();
     const redisPublisher = newRedisClient();
     const channelName = ws.params.get('id');
+
+    Flows.getTitle(channelName).then((title) => {
+      ws.send(
+        JSON.stringify({
+          type: 's',
+          title,
+        }),
+      );
+    });
 
     // 訂閱 Redis, 讓我們可以收到同一個 Flow 中其他用戶的訊息
     redisListener.subscribe(channelName, (err) => {
@@ -130,6 +130,7 @@ const router = new WsRouter()
         await redisPublisher.publish(
           channelName,
           JSON.stringify({
+            type: 'p',
             email: ws.email,
             ...query,
           }),
@@ -137,7 +138,8 @@ const router = new WsRouter()
       });
     });
   })
-  .no_session('/flow', (ws, can) => {
+  .session('/flow', (ws) => {
+    // Flows.getTitle()
     ws.on('message', (message) => {
       const query = JSON.parse(message.toString('utf-8'));
       const { a, d } = query;
@@ -196,6 +198,43 @@ const router = new WsRouter()
 
     const stream = new WebSocketJSONStream(ws);
     sharedb.listen(stream);
+  })
+  .session('/user-service', (ws) => {
+    const redisListener = newRedisClient();
+    const redisPublisher = newRedisClient();
+    // const channelName = ws.params.get('id');
+
+    // 喜歡你的 Node
+    redisListener.subscribe(ws.email, (err) => {
+      if (err) {
+        ws.close(1001);
+        return;
+      }
+
+      redisListener.on('message', (_, message) => {
+        ws.send(message);
+      });
+
+      ws.on('message', async (message) => {
+        // 推出去給大家
+        const query = JSON.parse(message.toString('utf-8'));
+        if (query && query.type) {
+          const target = [query.id.split('-')[0]];
+
+          target.forEach((person) => {
+            redisPublisher.publish(
+              person,
+              JSON.stringify({
+                source: ws.email,
+                ...query,
+              }),
+            );
+          });
+        }
+      });
+    });
+    // 進入了你的 Flow
+    // 更改/刪除了你正在開啟的 Flow
   });
 
 wsServer.on('connection', (ws, req) => {

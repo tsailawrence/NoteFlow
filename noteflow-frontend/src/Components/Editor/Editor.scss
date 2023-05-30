@@ -65,7 +65,6 @@
     //   transitio n: 0.4s;
     // }
     .right {
-
       display: flex;
       gap: 5px;
       justify-content: flex-end;
@@ -149,7 +148,6 @@
         background: transparent;
         color: #1e1e1e;
 
-
         &:focus {
           outline: none;
           border-bottom: none;
@@ -171,7 +169,6 @@
       }
     }
     .right {
-
       display: flex;
       gap: 5px;
       justify-content: flex-end;
@@ -206,7 +203,6 @@
           }
         }
       }
-
     }
   }
   .text-editor {
@@ -220,4 +216,8 @@
 
 button.css-1vi0bg9-MuiButtonBase-root-MuiButton-root {
   min-width: 50px;
+}
+
+.ql-tooltip {
+  left: 0 !important;
 }

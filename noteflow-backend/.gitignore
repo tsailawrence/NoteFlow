@@ -11,3 +11,5 @@ redis/redis.conf
 /coverage/*
 config/.env.development
 images/*
+
+dist/

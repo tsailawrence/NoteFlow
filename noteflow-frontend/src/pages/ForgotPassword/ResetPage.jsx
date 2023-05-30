@@ -21,7 +21,6 @@ function ResetPage() {
   const [showTryMe, setShowTryMe] = useState(false); //切換 logo 以及 tryme
 
   if (!email || !token) {
-    console.log('qq');
     navigate('/');
   }
 

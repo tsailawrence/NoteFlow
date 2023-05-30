@@ -24,7 +24,7 @@ export default function StyleBar({
   const [style, setStyle] = useState(
     nodes.filter((nd) => nd.id == nodeId)[0].style,
   );
-  console.log(style);
+
   return (
     <Box className="bar">
       <Drawer
@@ -58,7 +58,6 @@ export default function StyleBar({
                 type="color"
                 value={style.borderColor}
                 onChange={(event) => {
-                  console.log(nodeId);
                   setStyle({ ...style, borderColor: event.target.value });
                   nodeChangeStyle(nodeId, event, 'color');
                 }}

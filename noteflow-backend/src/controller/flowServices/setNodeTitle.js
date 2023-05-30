@@ -4,14 +4,14 @@ import { NodeRepo } from '../../model/mongodb/model/index.js';
 const setNodeTitle = async (ctx) => {
   const { id, title } = ctx.request.body;
 
+  let result;
   try {
-    const result = await NodeRepo.setTitle(id, title);
+    result = await NodeRepo.setTitle(id, title);
+  } catch(e) {}
 
-    ctx.status = CODE.success;
-    ctx.body = JSON.stringify(result);
-  } catch (e) {
-    ctx.throw(CODE.internal_error, 'Internal server error');
-  }
+  ctx.status = result ? CODE.success : CODE.internal_error;
+  ctx.body = JSON.stringify(result);
+  
 };
 
 export default setNodeTitle;

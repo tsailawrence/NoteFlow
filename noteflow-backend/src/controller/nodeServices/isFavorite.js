@@ -7,13 +7,14 @@ const isFavorite = async (ctx) => {
     ctx.throw(CODE.insufficient);
   }
 
+  let isFav;
   try {
-    const isFav = await Library.isFavorite(ctx.session.email, id);
-    ctx.status = CODE.success;
-    ctx.body = JSON.stringify(isFav);
-  } catch {
-    ctx.throw(CODE.internal_error);
-  }
+    isFav = await Library.isFavorite(ctx.session.email, id);
+  } catch {}
+
+  ctx.status = isFav === true || isFav === false ? CODE.success : CODE.internal_error;
+  ctx.body = JSON.stringify(isFav);
+  
 };
 
 export default isFavorite;

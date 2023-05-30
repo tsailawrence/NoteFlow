@@ -1,0 +1,55 @@
+name: Build and Deploy to GKE
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT_ID }}
+  GKE_CLUSTER: nodeflowcluster-a1    # TODO: update to cluster name
+  GKE_ZONE: asia-east1   # TODO: update to cluster zone
+  DEPLOYMENT_NAME: GitHub_k8s_deploy # TODO: update to deployment name
+  
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Authentication via credentials json
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+    - name: Docker configuration
+      run: |-
+         echo ${{steps.auth.outputs.access_token}} | docker login -u jounglab112a --password ilovejoung112A
+        
+    # Get the GKE credentials so we can deploy to the cluster
+    - name: Set up GKE credentials
+      uses: google-github-actions/get-gke-credentials@v0
+      with:
+        cluster_name: ${{ env.GKE_CLUSTER }}
+        location: ${{ env.GKE_ZONE }}
+
+    # Build and push the Docker image
+    - name: BuildAndPublish
+      working-directory: ./
+      run: |-
+        bash bind.build.sh
+
+    # Deploy the Docker image to the GKE cluster
+    - name: Deploy
+      working-directory: ./k8s_deployment/
+      run: |-
+        bash k8s_setup.sh
+

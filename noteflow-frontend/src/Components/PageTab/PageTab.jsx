@@ -103,7 +103,6 @@ export default function PageTab() {
         <Stack direction="row" spacing={1}>
           {tabList.map((tab, i) => {
             let tabTitle = tab.name;
-            console.log(tabTitle.length, '個字');
             const leng = 10;
             if (tabTitle?.length > leng) {
               tabTitle = tabTitle.substring(0, leng - 1) + '...';

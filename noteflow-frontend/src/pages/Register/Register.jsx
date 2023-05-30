@@ -47,6 +47,7 @@ const Register = () => {
         navigateTo('/');
       })
       .catch((e) => {
+        console.log(e);
         switch (e.response.status) {
           case 400:
             return setAlarms('Some forms are left unfilled.');

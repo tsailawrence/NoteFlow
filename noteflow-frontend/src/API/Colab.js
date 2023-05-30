@@ -11,7 +11,7 @@ class Colab {
 
     socket.addEventListener('message', (msg) => {
       const message = JSON.parse(msg.data.toString('utf-8'));
-      console.log(message);
+
       let userList = new Array(message.length);
       message.forEach((m, id) => {
         const newList = m.entry.split('-');

@@ -1,16 +1,9 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { getMongoClient } from '../../mongoClient.js';
-import Flow from './Flow.js';
 
 class Flows {
-  constructor(user) {
-    if (!/@/.test(user)) {
-      throw Error('User needs to be an email.');
-    }
-    this.user = user;
-    this.flows = [];
-  }
+  constructor() {}
 
   static async genFlowsProfile(userEmail) {
     const result = {
@@ -25,16 +18,6 @@ class Flows {
       return; // We have created for this user.
     }
     await collection.insertOne(result);
-  }
-
-  async addFlow() {
-    const mongoClient = getMongoClient();
-    const flowId = await Flow.generateFlowId();
-    const database = mongoClient.db('noteflow');
-    const collection = database.collection('flows');
-
-    const flow = new Flow(flowId, '', this.user);
-    await collection.insertOne({ ...flow });
   }
 
   static async fetchFlowsByFlowList(flowList, page) {
@@ -150,7 +133,7 @@ class Flows {
     //   user: owner,
     //   'flows.id': flowId,
     // });
-    // console.log(result.lastErrorObject.updatedExisting);
+
     const result = await collection.updateOne(
       { user: owner },
       { $pull: { flows: { id: flowId } } },

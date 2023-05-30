@@ -83,7 +83,6 @@ const QuillProvider = (props) => {
 
     editor.subscribe((error) => {
       if (error) throw error;
-      console.log('editor data', editor);
       setEditor(editor);
       quill.setContents(editor.data);
       const presence = editor.connection.getDocPresence(

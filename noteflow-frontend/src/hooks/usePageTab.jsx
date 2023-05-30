@@ -10,6 +10,7 @@ import { useApp } from './useApp';
 
 const PageTabContext = createContext({
   tabList: [],
+  tabToFlowSetting: {},
   addTab: () => {},
   closeTab: () => {},
   deleteTab: () => {}, //Use when deleting a flow
@@ -20,6 +21,7 @@ const PageTabContext = createContext({
 const PageTabProvider = (props) => {
   const [tabList, setTabList] = useState([]);
   const [activeTab, setActiveTab] = useState(0);
+  const [tabToFlowSetting, setTabToFlowSetting] = useState(null);
   const { user } = useApp();
   const [flowWebSocket, setFlowWebSocket] = useState(null);
 
@@ -43,7 +45,7 @@ const PageTabProvider = (props) => {
 
   const addTab = (payload) => {
     const exist = tabList.filter((tab) => tab.objectId == payload.objectId);
-    console.log(exist);
+
     if (exist.length === 0)
       setTabList((prevTabList) => {
         let maxId = 0;
@@ -60,9 +62,8 @@ const PageTabProvider = (props) => {
       });
     else setActiveTab(exist[0].tabId);
   };
-  console.log(tabList);
+
   const closeTab = (tabId) => {
-    console.log('close', activeTab);
     const lastTab = tabList.length === 1;
     if (lastTab) {
       setTabList([]);
@@ -113,6 +114,7 @@ const PageTabProvider = (props) => {
       return newState;
     });
   };
+
   const location = useLocation();
 
   useEffect(() => {
@@ -120,6 +122,17 @@ const PageTabProvider = (props) => {
       setActiveTab(0);
     }
   }, [location]);
+
+  useEffect(() => {
+    const get = localStorage.getItem('noteflow-activeTab', activeTab);
+    if (get) {
+      setActiveTab(get);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('noteflow-activeTab', activeTab);
+  }, [activeTab]);
 
   return (
     <PageTabContext.Provider
@@ -131,6 +144,7 @@ const PageTabProvider = (props) => {
         deleteTab,
         renameTab,
         activeTab,
+        tabToFlowSetting,
         setActiveTab,
         setTabList,
         renameTab,

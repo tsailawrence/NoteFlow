@@ -3,6 +3,10 @@ import { Flows } from '../../model/mongodb/model/index.js';
 
 const getFlowTitle = async (ctx) => {
   const { id } = ctx.query;
+  
+  if(!id) {
+     ctx.throw(CODE.insufficient, 'You did not offer sufficient data');
+  }
 
   let resolved;
   try {

@@ -15,11 +15,13 @@ export default ({ mode }) => {
     server: {
       host: '0.0.0.0',
       port: process.env.FRONTEND_EXPOSE_PORT,
-      https: {
-        key: './server.key',
-        cert: './server.cert',
-      },
       hmr: false,
+    },
+    build: {
+      manifest: true,
+      rollupOptions: {
+        input: '/index.html',
+      },
     },
   });
 };
@@ -36,8 +38,6 @@ const findCss = () => {
       available.push(files[i].split('.')[0]);
     }
   }
-
-  console.log(available);
 
   return available;
 };

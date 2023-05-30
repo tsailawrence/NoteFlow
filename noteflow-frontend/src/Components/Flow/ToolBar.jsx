@@ -68,6 +68,7 @@ export default function ToolBar({
         >
           <BsNodePlus size={18} />
         </Button>
+        {/* 調色盤，需要 handleClick */}
         <Button variant="dark" onClick={handleClick} className="toolBarButton">
           <BsPalette size={18} />
         </Button>
@@ -106,7 +107,7 @@ export default function ToolBar({
       <div className="right">
         <div
           ref={subRef}
-          style={{ display: isEdit ? 'none' : 'flex' }}
+          style={{ display: 'flex' }}
           className="mouse-dot-subscribe"
         ></div>
         <Button

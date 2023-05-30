@@ -103,7 +103,6 @@ async function seed() {
       const database = mongoClient.db('noteflow');
 
       const [place, data] = element;
-      console.log(`insert into collection ${place}...`);
 
       const collection = database.collection(place);
 

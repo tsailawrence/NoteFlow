@@ -1,9 +1,14 @@
 import { Flows, Node } from '../model/mongodb/model/index.js';
+import CODE from '..//lib/httpStatus.js';
 
 const authorized = async (ctx, next) => {
   let { id } = ctx.query;
-  if (ctx.request.body.id) {
+  if (ctx.request.body && ctx.request.body.id) {
     id = ctx.request.body.id;
+  }
+
+  if(!id) {
+    ctx.throw(CODE.insufficient, 'You did not offer sufficient data');
   }
 
   const path = ctx.request.url.split('/')[2];

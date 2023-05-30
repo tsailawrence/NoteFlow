@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: "postgres:14.5-alpine"
+        envFrom:
+        - configMapRef:
+            name: postgres-configmap
+        - secretRef:
+            name: postgres-secret
+        volumeMounts:
+          - name: nf-postgres-volume
+            mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: nf-postgres-volume
+          persistentVolumeClaim: 
+            claimName: nf-postgres-pvc
+
+--- 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: "mongo:6.0.5"
+        envFrom:
+        - configMapRef:
+            name: mongo-configmap
+        - secretRef:
+            name: mongo-secret
+        volumeMounts:
+          - name: nf-mongo-volume
+            mountPath: /data
+      volumes:
+        - name: nf-mongo-volume
+          persistentVolumeClaim: 
+            claimName: nf-mongo-pvc
+
+
+--- 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: "redis:7.0"
+ 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: "jounglab112a/noteflow-backend:latest"
+        ports:
+          - containerPort: 3000
+        volumeMounts:
+          - name: nf-backend-volume
+            mountPath: /backend/images
+        command: ["/bin/bash","-c"]
+        args: ["npm install && npm run check:migrate && npm run start"]
+        envFrom:
+        - configMapRef:
+            name: backend-configmap
+      volumes:
+        - name: nf-backend-volume
+          persistentVolumeClaim:
+            claimName: nf-backend-pvc

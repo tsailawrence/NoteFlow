@@ -2,7 +2,7 @@ import CODE from '../../lib/httpStatus.js';
 import Library from '../../model/mongodb/model/object/Library.js';
 
 const removeNodeFromLibrary = async (ctx) => {
-  const { id } = ctx.request.body;
+  let id = ctx.request.body ? ctx.request.body.id : undefined;
 
   if (!id) {
     ctx.throw(CODE.insufficient);

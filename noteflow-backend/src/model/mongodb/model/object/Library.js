@@ -4,10 +4,7 @@
 import { getMongoClient } from '../../mongoClient.js';
 
 class Library {
-  constructor(user) {
-    this.user = user;
-    this.nodes = [];
-  }
+  constructor() {}
 
   static async genLibraryProfile(email) {
     const result = {
@@ -66,11 +63,6 @@ class Library {
     }
 
     return result;
-
-    // const nodesFromLib = result.nodes.map((data) => data.id);
-    // const nodes = await NodeRepo.fetchNodes(user, nodesFromLib);
-
-    // return nodes;
   }
 
   static async isFavorite(user, nodeId) {
@@ -92,7 +84,7 @@ class Library {
     const database = mongoClient.db('noteflow');
     const collection = database.collection('library');
 
-    await collection.findOneAndUpdate(
+    const result = await collection.findOneAndUpdate(
       {
         user: email,
       },
@@ -100,6 +92,8 @@ class Library {
         $addToSet: { nodes: { id, addTime: Date.now() } },
       },
     );
+
+    return result.lastErrorObject.updatedExisting;
   }
 
   static async removeNode(id, email) {

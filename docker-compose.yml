@@ -4,23 +4,27 @@ services:
   mongo:
     image: mongo:6.0.5
     restart: always
+    ports:
+      - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
       MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
       MONGO_NOTEFLOW_USERNAME: $MONGO_NOTEFLOW_USERNAME
       MONGO_NOTEFLOW_PASSWORD: $MONGO_NOTEFLOW_PASSWORD
       MONGO_INITDB_DATABASE: $MONGO_DB
-    volumes:
-      - noteflow_data:/data/db
-      - noteflow_config:/data/configdb
-      - ./mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    # volumes:
+    #   - noteflow_data:/data/db
+    #   - noteflow_config:/data/configdb
+    #   - ./mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - noteflow
 
   postgres:
     image: "postgres:14.5-alpine"
-    volumes:
-      - data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    # volumes:
+    #   - data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: $POSTGRES_DB
       POSTGRES_USER: $POSTGRES_USER
@@ -47,17 +51,10 @@ services:
 
   redis:
     image: "redis:7.0"
+    ports:
+      - 6383:6379
     networks:
       - noteflow
-    ports:
-      - 6380:6379
-
-  redis-session:
-    image: "redis:7.0"
-    networks:
-      - noteflow
-    ports:
-      - 6381:6379
 
   frontend:
     image: "node:lts"
@@ -78,7 +75,7 @@ services:
   backend:
     image: "node:lts"
     working_dir: /backend
-    command: sh -c "npm install && npm run start"
+    command: sh -c "npm install && npm run check:migrate && npm run start"
     networks:
       - noteflow
     ports:
@@ -91,7 +88,6 @@ services:
       MONGO_NOTEFLOW_USERNAME: $MONGO_NOTEFLOW_USERNAME
       MONGO_NOTEFLOW_PASSWORD: $MONGO_NOTEFLOW_PASSWORD
       MONGO_PORT: $MONGO_PORT
-      PHOTO_FS: $PHOTO_FS
 
       POSTGRES_HOST: $POSTGRES_HOST
       POSTGRES_DB: $POSTGRES_DB
@@ -120,23 +116,24 @@ services:
       - postgres
     volumes:
       - ./noteflow-backend:/backend
+      - ./noteflow-frontend:/frontend
 
-  migrate:
-    image: "node:lts"
-    working_dir: /backend
-    command: sh -c "npm install && npm run db:migrate"
-    networks:
-      - noteflow
-    environment:
-      POSTGRES_HOST: $POSTGRES_HOST
-      POSTGRES_DB: $POSTGRES_DB
-      POSTGRES_USER: $POSTGRES_USER
-      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-      POSTGRES_PORT: $POSTGRES_PORT
-    depends_on:
-      - backend
-    volumes:
-      - ./noteflow-backend:/backend
+  # migrate:
+  #   image: "node:lts"
+  #   working_dir: /backend
+  #   command: sh -c "npm install && npm run db:migrate"
+  #   networks:
+  #     - noteflow
+  #   environment:
+  #     POSTGRES_HOST: $POSTGRES_HOST
+  #     POSTGRES_DB: $POSTGRES_DB
+  #     POSTGRES_USER: $POSTGRES_USER
+  #     POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+  #     POSTGRES_PORT: $POSTGRES_PORT
+  #   depends_on:
+  #     - backend
+  #   volumes:
+  #     - ./noteflow-backend:/backend
 
 volumes:
   data:

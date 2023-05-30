@@ -32,7 +32,7 @@ export default function ResetModal({ show, setShow, handleClose, flowId }) {
       setAlarms('New password does not match.');
       return;
     }
-    const oldPassword = SHA256(password.original).toString();
+    const oldPassword = (password.original).toString();
     const newPassword = SHA256(password.new).toString();
 
     instance

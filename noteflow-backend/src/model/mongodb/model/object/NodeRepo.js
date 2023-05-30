@@ -4,14 +4,6 @@ import { getMongoClient } from '../../mongoClient.js';
 import Node from './Node.js';
 
 class NodeRepo {
-  constructor(user) {
-    if (!/@/.test(user)) {
-      throw Error('User needs to be an email.');
-    }
-    this.user = user;
-    this.nodes = [];
-  }
-
   static async genNodeRepoProfile(userEmail) {
     const result = {
       user: userEmail,
@@ -53,23 +45,30 @@ class NodeRepo {
     return result.nodes;
   }
 
-  async newNode() {
+  static async newNode(user) {
     /**
      * journey:
      *  1. In flow: create new node
      *  2. Get permission from here
      *  3. Produce a ref to the flow
      */
-    const nodeId = await this.generateNodeId(this.user);
-    const node = new Node(nodeId, 'CustomNode', this.user);
+    const nodeId = await NodeRepo.generateNodeId(user);
+    const node = new Node(nodeId, 'CustomNode', user);
 
     const mongoClient = getMongoClient();
     const database = mongoClient.db('noteflow');
     const collection = database.collection('nodeRepository');
 
+    const found = await collection.findOne({
+      user,
+    });
+    if (!found) {
+      NodeRepo.genNodeRepoProfile(user);
+    }
+
     await collection.findOneAndUpdate(
       {
-        user: this.user,
+        user,
       },
       {
         $addToSet: { nodes: { ...node } },
@@ -81,20 +80,20 @@ class NodeRepo {
     return nodeId;
   }
 
-  async generateNodeId() {
+  static async generateNodeId(user) {
     let resolved = false;
     let newUuid;
     const mongoClient = getMongoClient();
 
     while (!resolved) {
-      newUuid = `${this.user}-node-${uuidv4()}`;
+      newUuid = `${user}-node-${uuidv4()}`;
 
       const database = mongoClient.db('noteflow');
       const collection = database.collection('nodeRepository');
       // eslint-disable-next-line no-await-in-loop
 
       const result = await collection.findOne({
-        user: this.user,
+        user: user,
         nodes: { $elemMatch: { nodeId: newUuid } },
       });
       if (!result) {

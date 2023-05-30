@@ -67,7 +67,6 @@ const Editor = ({ handleDrawerClose, editorId }) => {
     if (!editorId) return;
 
     OpenEditor(editorId);
-    console.log('opening...', editorId);
     instance.get(`/nodes/get-title?id=${editorId}`).then((res) => {
       setTitle(res.data);
       setNewTitle(res.data);
@@ -77,6 +76,8 @@ const Editor = ({ handleDrawerClose, editorId }) => {
         setFavorite(res.data);
       }
     });
+
+    console.log('editorId', editorId);
 
     instance
       .get(`/nodes/get-colab-list?id=${editorId}`)
@@ -145,14 +146,10 @@ const Editor = ({ handleDrawerClose, editorId }) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
                 sendNewTitle(newTitle);
-                instance
-                  .post('/nodes/set-title', {
-                    id: editorId,
-                    title: newTitle,
-                  })
-                  .then((res) => {
-                    // console.log(res.status);
-                  });
+                instance.post('/nodes/set-title', {
+                  id: editorId,
+                  title: newTitle,
+                });
               }
             }}
           />
@@ -232,6 +229,7 @@ const Editor = ({ handleDrawerClose, editorId }) => {
               setStatus(STATE.turb);
             }
           }}
+          on
           placeholder={'Write something awesome...'}
           modules={modules}
           formats={formats}
