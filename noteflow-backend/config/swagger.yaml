@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
   title: 軟體開發方法-第五組 noteflow
-  description: 詳情請查閱 [Github noteflow-backend](https://github.com/vnaticzhock/noteflow-backend)
-  version: "0.1"
+  description: 詳情請查閱 [GitHub NoteFlow](https://github.com/tsailawrence/NoteFlow)、[NoteFlow Website](https://noteflow.live/)
+  version: "1,0"
 servers:
   - url: http://localhost:3000/
     description: localhost
@@ -13,22 +13,20 @@ servers:
 paths:
   /:
     get:
+      summary: Landing page
       tags:
-        - frontend
-      summary: 首頁
-      description: 首頁
+        - Home Page
       responses:
-          '200':
-            description: 首頁成功
-            content:
-              text/plain:
-                example:
-                  ok
+        '200':
+          description: success access
+        '404':
+          description: page not found
+
   /api/hello-world:
     get:
       summary: health check
       tags:
-        - healthCheck
+        - API-healthCheck
       responses:
         '200':
           description: healthCheck
@@ -36,12 +34,36 @@ paths:
             text/plain:
               example:
                 hello world!
+        '404':
+          description: server down
+
+  /api/swagger:
+    get:
+      summary: swagger API Document
+      tags:
+        - API-healthCheck
+      responses:
+        '200':
+          description: success access
+        '404':
+          description: page not found
+
+  /api/reset-redis:
+    get:
+      summary: reset redis
+      tags:
+        - API-healthCheck
+      responses:
+        '200':
+          description: success reset redis
+        '404':
+          description: page not found
 
   /api/user/register:
     post:
-      summary: 使用者註冊
+      summary: user register
       tags:
-          - user
+          - userServiceService
       requestBody:
         required: true
         content:
@@ -62,13 +84,21 @@ paths:
                   password: test
       responses:
         '200':
-          description: successful login
+          description: successful register
           content:
             application/json:
               schema:
                 type: object
-                items:
-                  type: string
+                properties:
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  uuid:
+                    type: string
+                  token:
+                    type: string
+
               example:
                 user:
                   name: test
@@ -88,56 +118,20 @@ paths:
             application/json:
               example:
                 errors:
-                  Forbidden, you already have  an email.
-  /api/user/verify/{userId}/{token}:
-    get:
-      summary: 使用者用email 進行認證
-      tags:
-          - user
-      parameters:
-        - in: path
-          name: userId
-          schema:
-            type: integer
-          required: true
-          description: userId
-          example:
-            userId: 1
-        - in: path
-          name: token
-          schema:
-            type: integer
-          required: true
-          description: hash token
-          example:
-            token: test
-      responses:
-        '200':
-          description: successful verify
+                  Forbidden, you already have an email.
+        '404':
+          description: not found
           content:
             application/json:
               example:
-                user:
-                  name: test
-                  email: test@gmail.com
-                  uuid: fd16ffe2-61a7-4c61-8693-009428a3b43a
-                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20ifSwiaWF0IjoxNjgxMTMxMjgxLCJleHAiOjE2ODE3MzYwODF9.iUOMcH_ltO42896ruTL5KA9eRokVbte0ByAreH0L0TE
-        '400':
-          description: bad request
+                errors:
+                  register link not found
+
   /api/user/login:
-    get:
-      summary: 登入畫面
-      tags:
-        - user
-      responses:
-        '200':
-          description: 進入登入畫面
-        '404':
-          description: not found
     post:
-      summary: 登入
+      summary: user login
       tags:
-        - user
+        - userServiceService
       requestBody:
         required: true
         content:
@@ -151,11 +145,11 @@ paths:
                   type: string
                 password:
                   type: string
-              example:
-                user:
-                  name: test
-                  email: test@gmail.com
-                  password: test
+            example:
+              user:
+                name: test
+                email: test@gmail.com
+                password: test
       responses:
         '200':
           description: successful login
@@ -172,6 +166,13 @@ paths:
               example:
                 errors:
                   email or password is not valid
+        '404':
+          description: page not found
+          content:
+            application/json:
+              example:
+                errors:
+                    page not found
         '422':
           description: input data error
           content:
@@ -179,11 +180,19 @@ paths:
               example:
                 errors:
                     email or password input error
+        '500':
+          description: internal error
+          content:
+            application/json:
+              example:
+                errors:
+                    internal error
+
   /api/user/google-login:
     post:
-      summary: 使用google-login登入(undone)
+      summary: user google login to single sign on
       tags:
-        - user
+        - userServiceService
       requestBody:
         required: true
         content:
@@ -191,11 +200,14 @@ paths:
               schema:
                 type: object
                 properties:
+                  email:
+                    type: string
                   name:
                     type: string
               example:
                 user:
-                  email: test@gmail.com
+                  email: test1234@gmail.com
+                  name: test
       responses:
         '200':
           description: successful login
@@ -209,165 +221,120 @@ paths:
                   password: '$argon2id$v=19$m=65536,t=3,p=4$0BjJneCLlW11ZlCj6k62IA$bTQ9YgkdgU4bE4jgnqZrAO1qk68edZaAOxsoEltDTE8'
                   created_at: '2023-04-10T12:41:17.148Z'
                   updated_at: '2023-04-10T12:41:17.148Z'
-        '400':
-          description: Bad request.
+        '422':
+          description: insufficient
           content:
             application/json:
               example:
-                errors: You didn't provide user column.
-  /api/user/update:
+                errors: You provide wrong data format.
+
+  /api/user/reset-password-send-email:
     post:
-      summary: update user name
-      description: Update name
+      summary: reset password and setd email
       tags:
-        - user
+        - userService
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                email:
-                  type: string
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  name:
+                    type: string
               example:
                 user:
-                  name: test1
-                  email: test@gmail.com
-      responses:
-        '200':    # status code
-          description: A JSON array of user names
-          content:
-            application/json:
-              example:
-                user:
-                  name: test1
-                  email: test@gmail.com
-                  updatedAt: "2023-05-08T17:28:53.810Z"
-  /api/user/who-am-i:
-    get:
-      summary: 讀取session, 使用者是否已登入
-      description: 讀取session, 使用者是否已登入
-      tags:
-        - user
+                  email: test1234@gmail.com
+                  name: test
       responses:
         '200':
-          description: 已登入狀態
+          description: successful login
           content:
             application/json:
               example:
-                text: had login
-        '401':
-          description: 未登入
+                user:
+                  email: 'test@gmail.com'
+                  name: 'test'
+        '404':
+          description: not found
           content:
             application/json:
               example:
-                UnauthorizedError: You have no login data.
+                errors: link not found
+        '408':
+          description: server timeout
+          content:
+            application/json:
+              example:
+                errors: server timeout
+        '422':
+          description: server timeout
+          content:
+            application/json:
+              example:
+                errors: You provide wrong data format.
+
+  /api/user/reset-password-auth:
+    post:
+      summary: reset-password-auth
+      tags:
+        - userService
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  name:
+                    type: string
+              example:
+                user:
+                  token: test1234@gmail.com
+                  email: test1234@gmail.com
+      responses:
+        '200':
+          description: successful login
+          content:
+            application/json:
+              example:
+                user:
+                  email: 'test@gmail.com'
+                  name: 'test'
+        '404':
+          description: not found
+          content:
+            application/json:
+              example:
+                errors: link not found
+        '408':
+          description: server timeout
+          content:
+            application/json:
+              example:
+                errors: server timeout
+        '422':
+          description: server timeout
+          content:
+            application/json:
+              example:
+                errors: You provide wrong data format.
+
 
   /api/user/logout:
     post:
-      summary: 登出(undone)
-      description: 登出(undone)
+      summary: logout
+      description: logout
       tags:
-        - user
+        - userService
       responses:
-        '200':    # status code
-          description: A JSON array of user names
+        '200':
+          description: user logout and clean session
           content:
             application/json:
-              schema:
-                type: object
-                items:
-                  type: string
-  /api/flows:
-    get:
-        summary: flows(undone)
-        description: flows(undone)
-        tags:
-          - flows
-        responses:
-          '200':    # status code
-            description: flows
-            content:
-              application/json:
-                schema:
-                  type: object
-                  items:
-                    type: string
-          '401':
-            description: Unauthorized. You haven't log in yet.
-            content:
-              application/json:
-                example:
-                  errors: Unauthorized. You haven't log in yet.
-  /api/flows/create:
-    post:
-        summary: flows(undone)
-        description: flows(undone)
-        tags:
-          - flows
-        responses:
-          '200':    # status code
-            description: flows
-            content:
-              application/json:
-                schema:
-                  type: object
-                  items:
-                    type: string
-          '401':
-            description: Unauthorized. You haven't log in yet.
-            content:
-              application/json:
-                example:
-                  errors: Unauthorized. You haven't log in yet.
-  /api/library:
-    get:
-        summary: get library(undone)
-        description: get library(undone)
-        tags:
-          - flows
-        responses:
-          '200':    # status code
-            description: flows
-            content:
-              application/json:
-                schema:
-                  type: object
-                  items:
-                    type: string
-          '401':
-            description: Unauthorized. You haven't log in yet.
-            content:
-              application/json:
-                example:
-                  errors: Unauthorized. You haven't log in yet.
-          '404':
-            description: model error
-            content:
-              application/json:
-                example:
-                  errors: Error.
-  /api/nodes/new-node:
-    post:
-        summary: get new node(undone)
-        description: get new node(undone)
-        tags:
-          - flows
-        responses:
-          '200':    # status code
-            description: flows
-            content:
-              application/json:
-                schema:
-                  type: object
-                  items:
-                    type: string
-          '401':
-            description: Unauthorized. You haven't log in yet.
-            content:
-              application/json:
-                example:
-                  errors: Unauthorized. You haven't log in yet.
+              example:
+                message: success
