@@ -1,4 +1,5 @@
 # Noteflow
+<span></span>
 [![CI - unit-test](https://github.com/tsailawrence/NoteFlow/actions/workflows/node.js.yml/badge.svg)](https://github.com/tsailawrence/NoteFlow/actions/workflows/node.js.yml)
 
 [![CD - Deploy to GKE](https://github.com/tsailawrence/NoteFlow/actions/workflows/gke_deployment.yml/badge.svg)](https://github.com/tsailawrence/NoteFlow/actions/workflows/gke_deployment.yml)

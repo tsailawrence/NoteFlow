@@ -9,7 +9,7 @@
     "start-prod": "set NODE_ENV=production && npx nodemon ./src/app.js",
     "test": "mocha tests --exit --recursive ",
     "test2": "mocha tests --exit --recursive --grep \"colab list handling\"",
-    "coverage": "nyc mocha tests --exit --recursive",
+    "coverage": "nyc mocha tests --reporter=html --exit --recursive",
     "c8": "c8 --exclude \"src/lib/**\" --exclude \"src/app.js\" --exclude \"tests\" --exclude \"src/routes/ws-router.js\" npm run test",
     "format": "prettier --config .prettierrc \"**/*.+(js|json)\" --write",
     "lint": "eslint src/**/*.js --fix && eslint tests/**/*.js --fix",
