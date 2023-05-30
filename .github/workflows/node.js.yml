@@ -42,10 +42,10 @@ jobs:
           node-version: 18.16.0
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --also=dev
 
-      - name: Install NYC (if not already installed)
-        run: npm install --global nyc
+      # - name: Install NYC (if not already installed)
+      #   run: npm install --global nyc
 
       - name: Run unit tests with coverage
         run: |
