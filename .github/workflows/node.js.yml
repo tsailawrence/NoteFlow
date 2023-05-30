@@ -46,7 +46,7 @@ jobs:
 
       - name: Run unit tests with coverage
         run: |
-          npm run c8
+          npm run coverage
         env:
           REDIS_HOST: localhost
           REDIS_PORT: ${{ job.services.redis.ports[6379] }}
