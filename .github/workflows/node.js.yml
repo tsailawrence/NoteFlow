@@ -31,6 +31,7 @@ jobs:
             --health-retries 5
             --name mongo_container
             --eval 'db.createUser({user: "jounglab", pwd: "112a", roles: [{role: "readWrite", db: "noteflow"}]})'
+            --eval 'db.createUser({user: "root", pwd: "112a", roles: [{role: "readWrite", db: "noteflow"}]})'
         ports:
           - 27017:27017
 
