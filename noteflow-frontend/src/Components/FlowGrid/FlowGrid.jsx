@@ -255,14 +255,20 @@ export default function FlowGrid({ containerRef }) {
               <div
                 className="grid-item"
                 onContextMenu={(event) => {
-                  setTarget(event.currentTarget);
-                  setFocus({
-                    id: flow.id,
-                    title: flow.name,
-                  });
-                  // setIsMenuOpen((prev) => !prev);
                   event.preventDefault();
                   event.stopPropagation();
+                  if (event.currentTarget === target) {
+                    setTarget(null);
+                    setFocus(null);
+                  } else {
+                    setTarget(event.currentTarget);
+                    setFocus({
+                      id: flow.id,
+                      title: flow.name,
+                    });
+                  }
+
+                  // setIsMenuOpen((prev) => !prev);
                 }}
                 onTouchStart={(event) => {
                   startPress(event, flow);

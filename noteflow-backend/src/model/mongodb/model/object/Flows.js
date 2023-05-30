@@ -118,7 +118,9 @@ class Flows {
       ])
       .toArray();
 
-    return resolved[0].flows ? resolved[0].flows.name : null;
+    return resolved && resolved.length !== 0 && resolved[0].flows
+      ? resolved[0].flows.name
+      : null;
   }
 
   static async deleteFlow(flowId) {
@@ -129,16 +131,10 @@ class Flows {
 
     const owner = flowId.split('-')[0];
 
-    // const result = await collection.findOneAndDelete({
-    //   user: owner,
-    //   'flows.id': flowId,
-    // });
-
     const result = await collection.updateOne(
       { user: owner },
       { $pull: { flows: { id: flowId } } },
     );
-    // 搜集他的相關人士
 
     return result.modifiedCount;
   }

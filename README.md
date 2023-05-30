@@ -22,6 +22,12 @@ docker compose --env-file .env.local down
 ## you can always use "docker logs <container name>" to see how it is going.
 ```
 
+production deployment
+```bash
+docker compose --env-file .env up -d
+docker compose --env-file .env down
+```
+
 開發完畢，build docker
 
 ```bash

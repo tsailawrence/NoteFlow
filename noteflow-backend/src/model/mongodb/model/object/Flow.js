@@ -81,7 +81,7 @@ class Flow {
 
     const flowList = new FlowList(owner);
     await flowList.addSomebodyToFlowList(owner, flowId);
-    await Flow.newify_sharedb();
+    await Flow.newify_sharedb(flowId);
 
     return is.lastErrorObject.updatedExisting;
   }

@@ -278,13 +278,12 @@ function Flow() {
           record[email] = true;
           FlowWebSocket.createInstance(email, 'sub-flow').then((instance) => {
             const oldInstance = document.getElementById(`sub-flow-${email}`);
-            // if (oldInstance) {
-            //   subRef.current.removeChild(oldInstance);
-            // }
+            if (oldInstance) {
+              subRef.current.removeChild(oldInstance);
+            }
             instance.onclick = (e) => {
               const { xPort, yPort } = tracker[email];
-              console.log('teleport to ', -xPort, -yPort);
-              console.log('rf instance:', rfInstance);
+
               rfInstance.setViewport({ x: -xPort, y: -yPort, zoom: 1 });
             };
             subRef.current.appendChild(instance);
@@ -292,6 +291,13 @@ function Flow() {
         } else {
           // 有沒有在閒置
           const instance = document.querySelector(`#sub-flow-${email}`);
+
+          if (record.email.exit) {
+            instance.classList.add('exited');
+          } else {
+            instance.classList.remove('exited');
+          }
+
           if (instance) {
             if (Date.now() - tracker[email].lastUpdate >= 5000) {
               instance.style.opacity = 0.75;
@@ -304,10 +310,6 @@ function Flow() {
     },
     [subRef, rfInstance],
   );
-
-  // useEffect(() => {
-  //   if (!rfInstance) return;
-  // }, [rfInstance]);
 
   useEffect(() => {
     if (!flowId) {
@@ -444,10 +446,10 @@ function Flow() {
   }, [setNodes, flowWebSocket]);
 
   const handleNodeBarOpen = () => {
-    setIsNodeBarOpen(true);
+    setIsNodeBarOpen((state) => !state);
   };
   const handleNodeBarClose = () => {
-    setIsNodeBarOpen(false);
+    setIsNodeBarOpen((state) => !state);
   };
 
   const backToHome = () => {
@@ -523,6 +525,7 @@ function Flow() {
   useEffect(() => {
     if (isEdit) {
       setIsNodeBarOpen(false);
+      setIsStyleBarOpen(false);
     }
   }, [isEdit]);
 
@@ -614,7 +617,7 @@ function Flow() {
           nodeTypes={nodeTypes}
           // edgeTypes={edgeTypes}
         >
-          {isStyleBarOpen ? (
+          {isStyleBarOpen && !isEdit ? (
             <StyleBar
               handleStyleBarClose={handleStyleBarClose}
               nodes={nodes}

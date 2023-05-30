@@ -78,6 +78,10 @@
           }
         }
       }
+
+      .sub-flow + .exit {
+        display: none;
+      }
     }
   }
 

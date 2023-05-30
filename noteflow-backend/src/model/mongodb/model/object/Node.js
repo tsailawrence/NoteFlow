@@ -18,6 +18,7 @@ class Node {
     const doc = connection.get('editor', this.id);
     doc.fetch((err) => {
       if (err) throw err;
+      console.log('create new editor:', this.id);
       if (doc.type === null) {
         doc.create([{ insert: '' }], 'rich-text');
       }
