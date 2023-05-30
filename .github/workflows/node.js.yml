@@ -30,7 +30,7 @@ jobs:
       redis:
         image: redis:latest
         ports:
-          - 6379:6379
+          - 6383:6379
 
     steps:
       - name: Checkout code
@@ -61,8 +61,8 @@ jobs:
           MONGO_HOST: localhost
           MONGO_PORT: ${{ job.services.mongodb.ports[27017] }}
 
-      - name: Store coverage report as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: coverage-report
-          path: coverage/lcov.info
+      # - name: Store coverage report as artifact
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: coverage-report
+      #     path: coverage/lcov.info
