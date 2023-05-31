@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
-  title: 軟體開發方法-第五組 noteflow
-  description: 詳情請查閱 [GitHub NoteFlow](https://github.com/tsailawrence/NoteFlow)、[NoteFlow Website](https://noteflow.live/)
-  version: "1,0"
+  title: 軟體開發方法-第六組 noteflow
+  description: 詳情請查閱 [Github noteflow-backend](https://github.com/vnaticzhock/noteflow-backend)
+  version: "0.1"
 servers:
   - url: http://localhost:3000/
     description: localhost
@@ -17,10 +17,12 @@ paths:
       tags:
         - Home Page
       responses:
-        '200':
-          description: success access
-        '404':
-          description: page not found
+          '200':
+            description: 首頁成功
+            content:
+              text/plain:
+                example:
+                  ok
 
   /api/hello-world:
     get:
@@ -84,7 +86,7 @@ paths:
                   password: test
       responses:
         '200':
-          description: successful register
+          description: successful registered
           content:
             application/json:
               schema:
@@ -118,18 +120,11 @@ paths:
             application/json:
               example:
                 errors:
-                  Forbidden, you already have an email.
-        '404':
-          description: not found
-          content:
-            application/json:
-              example:
-                errors:
-                  register link not found
-
+                  Forbidden, you already have  an email.
   /api/user/login:
     post:
-      summary: user login
+      summary: 登入
+      description: 登入
       tags:
         - userServiceService
       requestBody:
@@ -139,17 +134,14 @@ paths:
             schema:
               type: object
               properties:
-                name:
-                  type: string
                 email:
                   type: string
                 password:
                   type: string
-            example:
-              user:
-                name: test
-                email: test@gmail.com
-                password: test
+              example:
+                user:
+                  email: test@gmail.com
+                  password: test
       responses:
         '200':
           description: successful login
@@ -180,74 +172,14 @@ paths:
               example:
                 errors:
                     email or password input error
-        '500':
-          description: internal error
-          content:
-            application/json:
-              example:
-                errors:
-                    internal error
 
-  /api/user/google-login:
-    post:
-      summary: user google login to single sign on
-      tags:
-        - userServiceService
-      requestBody:
-        required: true
-        content:
-          application/json:
-              schema:
-                type: object
-                properties:
-                  email:
-                    type: string
-                  name:
-                    type: string
-              example:
-                user:
-                  email: test1234@gmail.com
-                  name: test
-      responses:
-        '200':
-          description: successful login
-          content:
-            application/json:
-              example:
-                user:
-                  id: 2
-                  email: 'test@gmail.com'
-                  name: 'test'
-                  password: '$argon2id$v=19$m=65536,t=3,p=4$0BjJneCLlW11ZlCj6k62IA$bTQ9YgkdgU4bE4jgnqZrAO1qk68edZaAOxsoEltDTE8'
-                  created_at: '2023-04-10T12:41:17.148Z'
-                  updated_at: '2023-04-10T12:41:17.148Z'
-        '422':
-          description: insufficient
-          content:
-            application/json:
-              example:
-                errors: You provide wrong data format.
 
-  /api/user/reset-password-send-email:
-    post:
-      summary: reset password and setd email
+  /api/user/who-am-i:
+    get:
+      summary: 讀取session, 使用者是否已登入
+      description: 讀取session, 使用者是否已登入
       tags:
-        - userService
-      requestBody:
-        required: true
-        content:
-          application/json:
-              schema:
-                type: object
-                properties:
-                  email:
-                    type: string
-                  name:
-                    type: string
-              example:
-                user:
-                  email: test1234@gmail.com
-                  name: test
+        - user
       responses:
         '200':
           description: successful login
@@ -327,14 +259,222 @@ paths:
 
   /api/user/logout:
     post:
-      summary: logout
-      description: logout
+      summary: 登出
+      description: 登出
       tags:
         - userService
       responses:
+        '200':    # status code
+          description: Successful logout
+
+  /api/user/get-photo-url:
+    get:
+      summary: 獲取使用者的照片連結
+      description: 獲取使用者的照片連結
+      tags:
+        - user
+      responses:
         '200':
-          description: user logout and clean session
+          description: Successful fetch
           content:
             application/json:
+              schema:
+                type: object
+                items:
+                  type: string
+
+
+  /api/flows:
+    get:
+        summary: 獲取全部的 flows
+        description: 獲取全部的 flows
+        tags:
+          - flows
+        parameters:
+          - name: page
+            in: query
+            description: 第幾次刷新(從零開始計數)
+            required: true
+            schema:
+              type: integer
+        responses:
+          '200':    # status code
+            description: Successful fetch flows
+            content:
+              application/json:
+                schema:
+                  type: object
+                  items:
+                    type: string
+          '401':
+            description: Unauthorized. You haven't log in yet.
+            content:
+              application/json:
+                example:
+                  errors: Unauthorized. You haven't log in yet.
+
+  /api/flows/get-colab-list:
+    get:
+        summary: get who is authorized to enter into the flow
+        description: get who is authorized to enter into the flow
+        tags:
+          - flows
+        responses:
+          '200':
+            description: successfully fetch colab list of a flow
+            content:
+              application/json:
+                  schema:
+                    type: object
+                    items:
+                      type: string
+          '404':
+            description: flow not found
+            content:
+              application/json:
+                  schema:
+                    type: object
+                    items:
+                      type: string
+
+  /api/flows/get-title:
+    get:
+      summary: 獲得特定 flow 的 title
+      tags:
+        - flows
+      parameters:
+        - name: page
+          in: query
+          description: 第幾次刷新(從零開始計數)
+          required: true
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: 成功獲取 title
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  type: string
+
+  /api/flows/set-title:
+    post:
+      summary: 更改特定 flow 的 title (undone)
+      tags:
+        - flows
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                title:
+                  type: string
               example:
-                message: success
+                id: test@gmail.com-flow-00000-00000-0000
+                title: test-flow
+      responses:
+        '200':
+          description: successful set flow name
+          content:
+            application/json:
+              schema:
+                type: boolean
+                items:
+                  type: string
+              example:
+
+
+
+  /api/flows/create:
+    post:
+      summary: 新增一個 Flow 到使用者的 Flow 倉庫中 (undone)
+      tags:
+        - flows
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+              example:
+                user:
+                  name: test
+                  email: test@gmail.com
+                  password: test
+      responses:
+        '200':    # status code
+          description: 成功獲取收藏
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  type: string
+        '500':
+          description: 內部伺服器錯誤
+
+  /api/flows/delete-flow:
+    post:
+      summary: 刪除 Flow
+      tags:
+        - flows
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+              example:
+                id: test@gmail.com-flow-00000-00000-0000-0000
+      responses:
+        '200':    # status code
+          description: 成功刪除 flow
+        '401':
+          description: 你並未被授權刪除這個 flow
+        '500':
+          description: 內部伺服器錯誤
+
+  /api/library:
+    get:
+        summary: get library
+        description: get library
+        tags:
+          - library
+        responses:
+          '200':    # status code
+            description: successfully get library
+            content:
+              application/json:
+                schema:
+                  type: object
+                  items:
+                    type: string
+          '401':
+            description: Unauthorized. You haven't log in yet.
+            content:
+              application/json:
+                example:
+                  errors: Unauthorized. You haven't log in yet.
+          '404':
+            description: model error
+            content:
+              application/json:
+                example:
+                  errors: Error.

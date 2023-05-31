@@ -50,9 +50,7 @@ const UserProvider = (props) => {
         //   navigate('/');
         // }
         const picture = user.picture
-          ? user.picture.startsWith('http')
-            ? user.picture
-            : `/api/fs/image/${user.picture}`
+          ? user.picture
           : getRandomPicture(user.email);
         setUser({
           ...user,

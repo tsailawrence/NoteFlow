@@ -158,12 +158,16 @@ export default function FlowGrid({ containerRef }) {
   // 長按功能
   const pressTimer = useRef(null);
 
-  const startPress = (event, flow) => {
+  console.log('focus', focus);
+
+  const startPress = (key, flow) => {
     pressTimer.current = setTimeout(() => {
-      setTarget(event.currentTarget);
-      // setIsMenuOpen(flow.id);
-      event.preventDefault();
-      event.stopPropagation();
+      const div = document.querySelector(`#grid-item-${key}`);
+      setTarget(div);
+      setFocus({
+        id: flow.id,
+        title: flow.name,
+      });
     }, 1000);
   };
 
@@ -185,19 +189,19 @@ export default function FlowGrid({ containerRef }) {
             onClose={() => setIsAlertOpen(false)}
           >
             <DialogTitle>
-              {t('Do you want to delete the follow ') + focus.title + '?'}
+              {t('Do you want to delete the flow ') + focus.title + '?'}
             </DialogTitle>
             <DialogActions>
+              <Button onClick={() => setIsAlertOpen(false)}>
+                {t('Cancel')}
+              </Button>
               <Button
                 onClick={() => {
                   deleteFlow(focus.id);
                   setIsAlertOpen(false);
                 }}
               >
-                {t('Yes')}
-              </Button>
-              <Button onClick={() => setIsAlertOpen(false)}>
-                {t('Cancel')}
+                {t('Confirm')}
               </Button>
             </DialogActions>
           </Dialog>
@@ -229,6 +233,9 @@ export default function FlowGrid({ containerRef }) {
               />
             </DialogContent>
             <DialogActions>
+              <Button onClick={() => setIsChangeTitleOpen(false)}>
+                {t('Cancel')}
+              </Button>
               <Button
                 onClick={() => {
                   changeTitle(focus.id, focus.title);
@@ -236,9 +243,6 @@ export default function FlowGrid({ containerRef }) {
                 }}
               >
                 {t('Confirm')}
-              </Button>
-              <Button onClick={() => setIsChangeTitleOpen(false)}>
-                {t('Cancel')}
               </Button>
             </DialogActions>
           </Dialog>
@@ -271,9 +275,12 @@ export default function FlowGrid({ containerRef }) {
                   // setIsMenuOpen((prev) => !prev);
                 }}
                 onTouchStart={(event) => {
-                  startPress(event, flow);
+                  event.preventDefault();
+                  event.stopPropagation();
+                  startPress(key, flow);
                 }}
                 onTouchEnd={cancelPress}
+                id={`grid-item-${key}`}
                 key={key}
               >
                 <FlowButton
@@ -318,12 +325,18 @@ export default function FlowGrid({ containerRef }) {
                       vertical: 'top',
                       horizontal: 'left',
                     }}
-                    style={{
-                      border: '1px solid red',
-                    }}
+                    style={
+                      {
+                        // border: '1px solid red',
+                      }
+                    }
                   >
                     <MenuItem
                       onClick={() => {
+                        console.log('open!');
+                        setIsChangeTitleOpen(true);
+                      }}
+                      onTouchStart={() => {
                         setIsChangeTitleOpen(true);
                       }}
                     >
@@ -331,6 +344,9 @@ export default function FlowGrid({ containerRef }) {
                     </MenuItem>
                     <MenuItem
                       onClick={() => {
+                        setIsAlertOpen(true);
+                      }}
+                      onTouchStart={() => {
                         setIsAlertOpen(true);
                       }}
                     >

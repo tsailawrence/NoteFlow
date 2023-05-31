@@ -180,6 +180,10 @@ function Flow() {
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
+  let { x, y, zoom } = useViewport();
+
+  console.log('anchor', x, y);
+
   const onDrop = useCallback((event) => {
     event.preventDefault();
 
@@ -189,8 +193,8 @@ function Flow() {
     }
     // ? 要從 event.clientX cast 到 react flow 的 x, y
     const position = {
-      x: event.clientX,
-      y: event.clientY,
+      x: -x + event.clientX / zoom,
+      y: -y + event.clientY / zoom,
     };
     // console.log('dragged:', dragNode);
     const editorId = dragNode.id;
@@ -292,15 +296,15 @@ function Flow() {
           // 有沒有在閒置
           const instance = document.querySelector(`#sub-flow-${email}`);
 
-          if (record.email.exit) {
-            instance.classList.add('exited');
-          } else {
-            instance.classList.remove('exited');
-          }
+          // if (record.email.exit) {
+          //   instance.classList.add('exited');
+          // } else {
+          //   instance.classList.remove('exited');
+          // }
 
           if (instance) {
-            if (Date.now() - tracker[email].lastUpdate >= 5000) {
-              instance.style.opacity = 0.75;
+            if (Date.now() - tracker[email].lastUpdate >= 8000) {
+              instance.style.display = 'none';
             } else {
               instance.style.opacity = 1;
             }
@@ -455,8 +459,6 @@ function Flow() {
   const backToHome = () => {
     setBack(true);
   };
-
-  let { x, y, zoom } = useViewport();
 
   const onNodeDoubleClick = useCallback((event, node) => {
     //open editor by nodeID

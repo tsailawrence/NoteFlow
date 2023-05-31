@@ -8,10 +8,12 @@ const router = new Router();
 
 router.use('/api/swagger', swagger);
 router.use('/api', users);
-router.get('/api/fs/image/', async (ctx) => {
-  const url = ctx.request.url.split('/');
-  const image = url[url.length - 1];
-  await send(ctx, image, { root: path.join(process.cwd(), 'images') });
+router.get('/api/fs/image', async (ctx) => {
+  const image = ctx.request.query ? ctx.request.query.id : null;
+  console.log(image);
+  if (image) {
+    await send(ctx, image, { root: path.join(process.cwd(), 'images') });
+  }
 });
 
 export default router;

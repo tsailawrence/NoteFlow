@@ -2,6 +2,8 @@
 import Koa from 'koa';
 import { koaBody } from 'koa-body';
 
+
+
 import logger from 'koa-logger';
 import { WebSocketServer } from 'ws';
 import http from 'http';
@@ -84,14 +86,16 @@ const router = new WsRouter()
         const keys = await redisClient.keys(`${query.nodeId}-*`);
         const value = await redisClient.mget(keys);
 
-        ws.send(
-          JSON.stringify(
-            keys.map((entry, index) => ({
-              entry,
-              picture: value[index],
-            })),
-          ),
-        );
+        if (ws.readyState !== 3) {
+          ws.send(
+            JSON.stringify(
+              keys.map((entry, index) => ({
+                entry,
+                picture: value[index],
+              })),
+            ),
+          );
+        }
       } catch (e) {
         ws.close(1001);
       }
@@ -104,12 +108,14 @@ const router = new WsRouter()
     const channelName = ws.params.get('id');
 
     Flows.getTitle(channelName).then((title) => {
-      ws.send(
-        JSON.stringify({
-          type: 's',
-          title,
-        }),
-      );
+      if (ws.readyState !== 3) {
+        ws.send(
+          JSON.stringify({
+            type: 's',
+            title,
+          }),
+        );
+      }
     });
 
     // 訂閱 Redis, 讓我們可以收到同一個 Flow 中其他用戶的訊息
@@ -120,7 +126,9 @@ const router = new WsRouter()
       }
       // 直接轉送其他用戶的位置
       redisListener.on('message', (_, message) => {
-        ws.send(message);
+        if (ws.readyState !== 3) {
+          ws.send(message);
+        }
       });
 
       // 跟前端 bind 住，讓後端可以收到來自特定用戶的訊息，以發送給 Channel 上其他人
@@ -212,7 +220,9 @@ const router = new WsRouter()
       }
 
       redisListener.on('message', (_, message) => {
-        ws.send(message);
+        if (ws.readyState !== 3) {
+          ws.send(message);
+        }
       });
 
       ws.on('message', async (message) => {

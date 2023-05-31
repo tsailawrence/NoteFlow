@@ -57,10 +57,6 @@ router
   .post('/nodes/revise-colab-list', logined, authorized, flow.reviseColabList)
   .get('/nodes/get-title', logined, flow.getNodeTitle)
   .post('/nodes/set-title', logined, authorized, flow.setNodeTitle);
-// .get('/nodes/access-node, service.accessNode) // 是否可以進入這個 node 修改 // 變成 middleware 做在 ws 裡面
-// .put('/nodes/add-colab, service.addColab)
-// .put('/nodes/remove-colab, service.removeColab);
-// .put('/nodes/add-ref, service.addRef); // 可以選擇 90 天後 ref: 0 的時候要不要自動清除
 
 // 我有改一些 route 的名字.
 

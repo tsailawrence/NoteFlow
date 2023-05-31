@@ -24,8 +24,8 @@ docker compose --env-file .env.local down
 
 production deployment
 ```bash
-docker compose --env-file .env up -d
-docker compose --env-file .env down
+docker compose -f docker-compose.prod.yml --env-file .env up -d
+docker compose -f docker-compose.prod.yml --env-file .env down
 ```
 
 開發完畢，build docker

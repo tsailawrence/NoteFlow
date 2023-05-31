@@ -7,8 +7,8 @@ RUN yarn && yarn build
 
 FROM --platform=linux/amd64 node:20.2
 
-COPY --from=builder /frontend/dist ./dist
 COPY ./noteflow-backend /backend
 WORKDIR /backend
+COPY --from=builder /frontend/dist /backend/dist
 
 EXPOSE 3000

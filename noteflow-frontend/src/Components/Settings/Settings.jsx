@@ -68,7 +68,7 @@ const Settings = () => {
     formData.append('image', file);
     await instance.post('/user/set-photo', formData).then((res) => {
       if (res.status === 200) {
-        setPhotoUrl(`/api/fs/image/${res.data}`);
+        setPhotoUrl(res.data);
       }
     });
   };

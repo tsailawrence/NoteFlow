@@ -74,6 +74,7 @@ class FlowWebSocket {
         divElement = await FlowWebSocket.createInstance(email, 'mouse-dot');
         background.appendChild(divElement);
       }
+
       divElement = document.querySelector(`#mouse-dot-${email}`);
 
       const other = this.mouseTracker[email];
@@ -134,9 +135,7 @@ class FlowWebSocket {
         `/user/get-photo-url?email=${deconvert(email)}`,
       );
       if (res.data) {
-        imgElement.src = res.data.startsWith('http')
-          ? res.data
-          : `/api/fs/image/${res.data}`;
+        imgElement.src = res.data;
       } else {
         imgElement.src = getRandomPicture(deconvert(email));
       }
