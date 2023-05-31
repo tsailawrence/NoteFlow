@@ -54,7 +54,7 @@ jobs:
 
       - name: Run unit tests with coverage
         run: |
-          sh ./tests/coverage.sh
+          sh ./tests/c8.sh
         env:
           REDIS_HOST: localhost
           REDIS_PORT: ${{ job.services.redis.ports[6379] }}
