@@ -62,10 +62,6 @@ jobs:
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           MONGO_HOST: localhost
           MONGO_PORT: ${{ job.services.mongodb.ports[27017] }}
-          MONGO_INITDB_ROOT_USERNAME: root
-          MONGO_INITDB_ROOT_PASSWORD: 112a
-          MONGO_NOTEFLOW_USERNAME: jounglab
-          MONGO_NOTEFLOW_PASSWORD: 112a
 
       - name: Store coverage report as artifact
         uses: actions/upload-artifact@v3
