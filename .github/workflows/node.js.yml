@@ -1,10 +1,44 @@
-name: Node.js for unit-testing
+name: CI - unit test
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: noteflow-backend
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_PASSWORD: 112a
+        ports:
+          - 5432:5432
+
+      mongodb:
+        image: mongo:4.4.20
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: 112a
+          MONGO_INITDB_DATABASE: noteflow
+          options: >-
+            --health-cmd "echo 'db.runCommand("ping").ok' | mongosh --quiet"
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
+            --name mongo_container
+            --authenticationDatabase noteflow
+            --eval 'use noteflow'
+            --eval 'db.createUser({user: "jounglab", pwd: "112a", roles: [{role: "readWrite", db: "noteflow"}]})'
+
+        ports:
+          - 27017:27017
+
+      redis:
+        image: redis:latest
+        ports:
+          - 6383:6379
 
     steps:
       - name: Checkout code
@@ -13,12 +47,27 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18.16
+          node-version: 18.16.0
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --include=dev
 
-      - name: Run unit tests
+      - name: Run unit tests with coverage
         run: |
-          cd noteflow-backend/tests
-          sh c8.sh
+          sh ./tests/c8.sh
+        env:
+          REDIS_HOST: localhost
+          REDIS_PORT: ${{ job.services.redis.ports[6379] }}
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+          MONGO_HOST: localhost
+          MONGO_PORT: ${{ job.services.mongodb.ports[27017] }}
+
+      - name: Store coverage report as artifact
+        uses: actions/upload-artifact@v3
+        if: success()
+        with:
+          name: coverage-report
+          path: |
+            noteflow-backend/coverage/
+          retention-days: 15

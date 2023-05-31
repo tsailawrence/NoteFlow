@@ -13,10 +13,9 @@ servers:
 paths:
   /:
     get:
+      summary: Landing page
       tags:
-        - frontend
-      summary: 首頁
-      description: 首頁
+        - Home Page
       responses:
           '200':
             description: 首頁成功
@@ -24,12 +23,12 @@ paths:
               text/plain:
                 example:
                   ok
-                  
+
   /api/hello-world:
     get:
       summary: health check
       tags:
-        - healthCheck
+        - API-healthCheck
       responses:
         '200':
           description: healthCheck
@@ -37,12 +36,36 @@ paths:
             text/plain:
               example:
                 hello world!
+        '404':
+          description: server down
+
+  /api/swagger:
+    get:
+      summary: swagger API Document
+      tags:
+        - API-healthCheck
+      responses:
+        '200':
+          description: success access
+        '404':
+          description: page not found
+
+  /api/reset-redis:
+    get:
+      summary: reset redis
+      tags:
+        - API-healthCheck
+      responses:
+        '200':
+          description: success reset redis
+        '404':
+          description: page not found
 
   /api/user/register:
     post:
-      summary: 使用者註冊
+      summary: user register
       tags:
-          - user
+          - userServiceService
       requestBody:
         required: true
         content:
@@ -68,8 +91,16 @@ paths:
             application/json:
               schema:
                 type: object
-                items:
-                  type: string
+                properties:
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  uuid:
+                    type: string
+                  token:
+                    type: string
+
               example:
                 user:
                   name: test
@@ -95,7 +126,7 @@ paths:
       summary: 登入
       description: 登入
       tags:
-        - user
+        - userServiceService
       requestBody:
         required: true
         content:
@@ -127,6 +158,13 @@ paths:
               example:
                 errors:
                   email or password is not valid
+        '404':
+          description: page not found
+          content:
+            application/json:
+              example:
+                errors:
+                    page not found
         '422':
           description: input data error
           content:
@@ -134,8 +172,8 @@ paths:
               example:
                 errors:
                     email or password input error
-  
-  
+
+
   /api/user/who-am-i:
     get:
       summary: 讀取session, 使用者是否已登入
@@ -144,24 +182,87 @@ paths:
         - user
       responses:
         '200':
-          description: 已登入狀態
+          description: successful login
           content:
             application/json:
               example:
-                text: had login
-        '401':
-          description: 未登入
+                user:
+                  email: 'test@gmail.com'
+                  name: 'test'
+        '404':
+          description: not found
           content:
             application/json:
               example:
-                UnauthorizedError: You have no login data.
+                errors: link not found
+        '408':
+          description: server timeout
+          content:
+            application/json:
+              example:
+                errors: server timeout
+        '422':
+          description: server timeout
+          content:
+            application/json:
+              example:
+                errors: You provide wrong data format.
+
+  /api/user/reset-password-auth:
+    post:
+      summary: reset-password-auth
+      tags:
+        - userService
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  name:
+                    type: string
+              example:
+                user:
+                  token: test1234@gmail.com
+                  email: test1234@gmail.com
+      responses:
+        '200':
+          description: successful login
+          content:
+            application/json:
+              example:
+                user:
+                  email: 'test@gmail.com'
+                  name: 'test'
+        '404':
+          description: not found
+          content:
+            application/json:
+              example:
+                errors: link not found
+        '408':
+          description: server timeout
+          content:
+            application/json:
+              example:
+                errors: server timeout
+        '422':
+          description: server timeout
+          content:
+            application/json:
+              example:
+                errors: You provide wrong data format.
+
 
   /api/user/logout:
     post:
       summary: 登出
       description: 登出
       tags:
-        - user
+        - userService
       responses:
         '200':    # status code
           description: Successful logout
@@ -182,7 +283,7 @@ paths:
                 items:
                   type: string
 
-  
+
   /api/flows:
     get:
         summary: 獲取全部的 flows
@@ -250,7 +351,7 @@ paths:
             type: string
 
       responses:
-        '200': 
+        '200':
           description: 成功獲取 title
           content:
             application/json:
@@ -258,9 +359,9 @@ paths:
                 type: object
                 items:
                   type: string
-                  
+
   /api/flows/set-title:
-    post: 
+    post:
       summary: 更改特定 flow 的 title (undone)
       tags:
         - flows
@@ -288,9 +389,9 @@ paths:
                 items:
                   type: string
               example:
-                
 
-  
+
+
   /api/flows/create:
     post:
       summary: 新增一個 Flow 到使用者的 Flow 倉庫中 (undone)
@@ -325,7 +426,7 @@ paths:
                   type: string
         '500':
           description: 內部伺服器錯誤
-  
+
   /api/flows/delete-flow:
     post:
       summary: 刪除 Flow
@@ -349,7 +450,7 @@ paths:
           description: 你並未被授權刪除這個 flow
         '500':
           description: 內部伺服器錯誤
-      
+
   /api/library:
     get:
         summary: get library
